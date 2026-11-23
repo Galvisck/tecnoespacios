@@ -35,4 +35,15 @@ footer{display:flex;justify-content:space-between;padding:20px 18px;opacity:.5;f
 aside{position:sticky;top:70px;background:var(--sf);border-radius:14px;padding:10px;display:grid;gap:4px}aside h4{margin:10px 6px 2px;font-size:12px;text-transform:uppercase;opacity:.6}
 aside button{text-align:left;background:none;color:var(--tx);border:0;border-radius:8px;padding:9px 12px;cursor:pointer;font:inherit}aside .on{background:var(--ac);color:var(--bg);font-weight:600}
 @media(max-width:760px){.ad{grid-template-columns:1fr}aside{position:static;grid-template-columns:1fr 1fr}aside h4{grid-column:1/-1}
-header{flex-wrap:wrap}nav{order:3;width:100%;flex-wrap:wrap;overflow:visible}nav a{flex:1 0 30%;text-align:center;border:1px solid #fff2}}
+header{flex-wrap:wrap}.lg{margin-right:auto}nav{display:none;order:3;width:100%;flex:none}header.open nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 0 4px;overflow:visible}nav a{display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:12px;background:var(--sf);opacity:1;font-size:15px}}
+
+#mn{display:none;background:none;border:1px solid #fff4;color:var(--tx);border-radius:10px;font-size:20px;line-height:1;padding:6px 11px;cursor:pointer}
+nav a span{display:none}nav a:hover{opacity:1}
+@media(max-width:760px){#mn{display:block}nav a span{display:inline}}
+.tg{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.tl{display:flex;flex-direction:column;gap:2px;background:var(--sf);border-radius:16px;padding:16px;text-decoration:none;transition:transform .2s}.tl:hover{transform:translateY(-3px)}.tl span{font-size:1.8rem}.tl b{color:var(--ac)}.tl small{opacity:.7}
+.sb{max-width:360px;margin-bottom:12px}.chips i{font-style:normal;opacity:.6;font-size:.8em}
+.sr5{color:var(--ac);letter-spacing:2px}.rv{cursor:default}.rv:hover{transform:none}.rv p{opacity:.9;font-size:.95rem}.rg{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.pk{display:flex;gap:4px}.pk button{background:none;border:0;font-size:2rem;line-height:1;color:#fff4;cursor:pointer;padding:0 2px}.pk .on{color:var(--ac)}
+.hp{position:absolute;left:-9999px;width:0;height:0;opacity:0}
+.ck{display:flex!important;gap:8px;align-items:center}.ck input{width:auto}.rw span{line-height:1.4}.rw em{font-style:normal}
+summary{cursor:pointer}.fm2{display:grid;gap:10px;margin-top:12px}

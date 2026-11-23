@@ -7,7 +7,7 @@ const FONTS='Poppins, Montserrat, Playfair Display, Lora, Oswald, Raleway, Inter
 const str=(v,n=300)=>String(v??'').slice(0,n);
 
 // Variables de entorno en Netlify (Site settings > Environment variables):
-//   LLM_API_KEY   (obligatoria)  clave gratis de Groq, Gemini u OpenRouter
+//   LLM_API_KEY   (opcional si pegas la clave en el panel > Asistente IA > Conexión de la IA)
 //   LLM_BASE_URL  (opcional)     por defecto https://api.groq.com/openai/v1
 //   LLM_MODEL     (opcional)     por defecto llama-3.3-70b-versatile
 //   PIXABAY_KEY   (opcional)     para que la IA busque fotos de stock
@@ -45,11 +45,20 @@ async function foto(st,b){
   }catch{return J({e:'No se pudo traer la foto'},502)}
 }
 
-async function asistente(b){
-  const key=process.env.LLM_API_KEY;
-  if(!key)return J({e:'Falta configurar LLM_API_KEY en Netlify (mira el LEEME).'},400);
-  const base=(process.env.LLM_BASE_URL||'https://api.groq.com/openai/v1').replace(/\/$/,'');
-  const model=process.env.LLM_MODEL||'llama-3.3-70b-versatile';
+async function conf(st){
+  const c=(await st.get('llm',{type:'json'}).catch(()=>null))||{},e=process.env;
+  return{key:c.key||e.LLM_API_KEY||'',base:(c.base||e.LLM_BASE_URL||'https://api.groq.com/openai/v1').replace(/\/$/,''),model:c.model||e.LLM_MODEL||'llama-3.3-70b-versatile',src:c.key?'panel':e.LLM_API_KEY?'env':''};
+}
+async function probar(c){
+  try{
+    const r=await fetch(c.base+'/chat/completions',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+c.key},body:JSON.stringify({model:c.model,max_tokens:5,messages:[{role:'user',content:'Responde: ok'}]}),signal:AbortSignal.timeout(8000)});
+    return r.ok?'':(r.status===401||r.status===403?'La clave no es válida.':r.status===404?'No se encontró el modelo o la dirección del servicio.':r.status===429?'Límite gratis agotado; espera un minuto.':'Error '+r.status+'.');
+  }catch{return 'El servicio no respondió a tiempo.'}
+}
+
+async function asistente(b,st){
+  const {key,base,model}=await conf(st);
+  if(!key)return J({e:'Falta la clave de la IA. Pégala en «Conexión de la IA», arriba en esta pestaña.'},400);
   const texto=str(b.texto,1500).trim();if(!texto)return J({e:'Escribe una instrucción'},400);
   const L=b.lista&&typeof b.lista==='object'?b.lista:{},V=b.vig&&typeof b.vig==='object'?b.vig:{};
   const lista=KS.map(k=>k+': '+(Array.isArray(L[k])?L[k].slice(0,200).map(n=>str(n,60)+(k==='promos'&&V[n]?' (hasta '+str(V[n],10)+')':'')).join('; '):'')).join('\n').slice(0,7000);
@@ -74,7 +83,7 @@ ${lista}`;
   let r;
   try{r=await llamar(true);if(r.status===400)r=await llamar(false)}
   catch{return J({e:'La IA tardó demasiado. Intenta de nuevo.'},504)}
-  if(!r.ok)return J({e:r.status===429?'Se agotó el límite gratis por ahora; espera un minuto e intenta otra vez.':r.status===401?'La clave LLM_API_KEY no es válida.':'Error de la IA ('+r.status+').'},502);
+  if(!r.ok)return J({e:r.status===429?'Se agotó el límite gratis por ahora; espera un minuto e intenta otra vez.':r.status===401?'La clave de la IA no es válida. Revísala en «Conexión de la IA».':'Error de la IA ('+r.status+').'},502);
   const j=await r.json().catch(()=>({}));
   const t=str(j.choices?.[0]?.message?.content,20000).replace(/^\s*```(?:json)?/i,'').replace(/```\s*$/,'').trim();
   let p;
@@ -88,5 +97,17 @@ export default async req=>{
   const st=getStore('tecnoespacios');
   const c=(await st.get('cred'))||DEF;
   if(b.auth!==c)return J({e:'Usuario o contraseña incorrectos.'},401);
-  return b.a==='foto'?foto(st,b):asistente(b);
+  if(b.a==='cfgget'){const c=await conf(st);return J({ok:1,on:!!c.key,src:c.src,base:c.base,model:c.model,last4:c.key.slice(-4)})}
+  if(b.a==='cfgdel'){await st.delete('llm');return J({ok:1})}
+  if(b.a==='cfgset'){
+    const old=(await st.get('llm',{type:'json'}).catch(()=>null))||{};
+    const key=str(b.key,300).trim().replace(/^Bearer\s+/i,'')||old.key||'',base=str(b.base,200).trim().replace(/\/$/,''),model=str(b.model,100).trim();
+    if(!key)return J({e:'Pega la clave de la IA.'},400);
+    if(!/^https:\/\/[^\s]+$/.test(base))return J({e:'La dirección del servicio debe empezar por https://'},400);
+    if(!model)return J({e:'Escribe el modelo.'},400);
+    await st.setJSON('llm',{key,base,model});
+    const aviso=await probar({key,base,model});
+    return J({ok:1,prueba:!aviso,aviso});
+  }
+  return b.a==='foto'?foto(st,b):asistente(b,st);
 }
