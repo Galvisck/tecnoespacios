@@ -20,3 +20,11 @@ Panel > Apariencia:
 Colores, Mesones, Herrajes y Electrodomésticos empiezan **vacíos**: agrégalos desde el panel. Cada sección aparece en el menú del sitio cuando tiene al menos un elemento.
 Si el sitio ya tenía datos guardados, el catálogo base anterior se quita solo la primera vez que entres al panel; lo que hayas creado tú con tus propias descripciones se conserva.
 Buscar fotos: en la pestaña Búsqueda y guardado puedes poner una clave gratis de Pixabay; sin clave, el botón abre Google Imágenes.
+
+# Añadir productos rápido (panel > Colores, Mesones, Herrajes, Electrodomésticos, Proyectos)
+- A la izquierda están las **categorías** (con conteo). Elige una y todo lo que añadas queda dentro. «+ Nueva categoría» y «✎ Renombrar» las gestionan.
+- **Añadir rápido**: nombre + subtítulo (ya viene con la categoría) + enlace de foto opcional, y Enter. En Colores el tono se toma solo de la foto.
+- **Subir varias fotos** (o arrastrarlas al cuadro): crea un producto por foto con el nombre del archivo.
+- **Pegar lista**: una línea por producto `Nombre | Subtítulo | https://foto | #color` (también sirve pegar columnas de Excel).
+- Cada fila se edita ahí mismo (nombre, categoría, color; clic en la miniatura para cambiar la foto).
+- En el sitio público las categorías también salen a la izquierda (arriba en celular).

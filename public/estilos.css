@@ -50,3 +50,18 @@ summary{cursor:pointer}.fm2{display:grid;gap:10px;margin-top:12px}
 
 .pr{display:flex;align-items:center;gap:10px;background:var(--bg);padding:8px 10px;border-radius:12px}.pr .n{flex:1;display:grid;line-height:1.25}.pr small{opacity:.65}.pr button{background:none;border:0;color:var(--ac);cursor:pointer;font:inherit}
 .sw{display:flex}.sw em{width:18px;height:28px;border:1px solid var(--l4)}.sw em:first-child{border-radius:8px 0 0 8px}.sw em:last-child{border-radius:0 8px 8px 0}.sw em+em{margin-left:-1px}
+
+/* Categorías a la izquierda (sitio y panel) */
+.cw{display:grid;grid-template-columns:210px 1fr;gap:20px;align-items:start}.cw.n1{display:block}
+.cs{position:sticky;top:70px;background:var(--sf);border-radius:14px;padding:10px;display:grid;gap:3px;max-height:calc(100vh - 90px);overflow:auto}
+.cs h4{margin:6px 6px 4px;font-size:12px;text-transform:uppercase;opacity:.6}
+.cs button{display:flex;justify-content:space-between;gap:8px;text-align:left;background:none;color:var(--tx);border:0;border-radius:8px;padding:8px 10px;cursor:pointer;font:inherit;font-size:14px}
+.cs button:hover{background:var(--l2)}.cs .on{background:var(--ac);color:var(--bg);font-weight:600}.cs i{font-style:normal;opacity:.6;font-size:.8em}
+.cs .nw{color:var(--ac);border-top:1px solid var(--l2);border-radius:0 0 8px 8px;margin-top:4px}
+/* Añadir rápido y filas editables */
+.fm.qa{max-width:none}.qg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.fm label.b{display:inline-block;font:600 14px var(--fb),sans-serif;opacity:1;cursor:pointer}
+.ri{flex-wrap:wrap}.ri input{flex:1;min-width:110px;padding:6px 8px}.ri input[type=color]{flex:none;min-width:0;width:44px;height:36px;padding:2px}
+.ri .th1{display:block;flex:none;cursor:pointer}.ri .th1 input{display:none}.ri .th1:hover{outline:2px solid var(--ac);border-radius:8px}
+.qa details{margin-top:6px}
+@media(max-width:760px){.cw{grid-template-columns:1fr}.cs{position:static;display:flex;overflow-x:auto;max-height:none;padding:8px}.cs h4{display:none}.cs button{white-space:nowrap;border:1px solid var(--l4);border-radius:99px}}
