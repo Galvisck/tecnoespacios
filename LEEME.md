@@ -4,13 +4,11 @@
 3. Todo lo que edites se guarda solo (textos, colores, fotos, reseñas). Las fotos quedan en Netlify Blobs.
 Arrastrar la carpeta a Netlify Drop no instala dependencias de funciones: usa Git o el CLI.
 
-# Asistente IA: la clave se pega en la página
-Panel > Asistente IA > **Conexión de la IA**:
-1. Elige el servicio (Groq, Gemini y OpenRouter tienen opción gratis) y pulsa "Conseguir una clave".
-2. Pega la clave y pulsa **Guardar y probar**. Si responde, ya puedes escribirle al asistente.
-La clave se guarda en tu cuenta de Netlify (no en los datos públicos del sitio) y nunca se muestra completa. Ya no necesitas variables de entorno; si las tienes (`LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL`) sirven de respaldo.
-Los modelos gratis cambian con el tiempo: si uno deja de funcionar, cambia el nombre en el campo "Modelo".
-Fotos con IA: "adjunta" usa las que subas en el asistente; "buscar" usa Pixabay (clave opcional en la pestaña Búsqueda y guardado o variable `PIXABAY_KEY`).
+# Apariencia
+Panel > Apariencia:
+- **Predefinidas**: 6 combinaciones listas (colores y letras). Pulsa "Aplicar".
+- **Mis apariencias**: personaliza colores y letras abajo, escribe un nombre y pulsa "Guardar". Luego la aplicas o la borras cuando quieras (hasta 30).
+- Hay 49 tipos de letra: modernas, con serifa, llamativas para títulos, manuscritas y del sistema.
 
 # Reseñas de clientes
 - Los clientes dejan su reseña (nombre, estrellas y opinión) en la sección **Reseñas** del sitio.
@@ -21,3 +19,4 @@ Fotos con IA: "adjunta" usa las que subas en el asistente; "buscar" usa Pixabay 
 # Catálogo
 Colores, Mesones, Herrajes y Electrodomésticos empiezan **vacíos**: agrégalos desde el panel. Cada sección aparece en el menú del sitio cuando tiene al menos un elemento.
 Si el sitio ya tenía datos guardados, el catálogo base anterior se quita solo la primera vez que entres al panel; lo que hayas creado tú con tus propias descripciones se conserva.
+Buscar fotos: en la pestaña Búsqueda y guardado puedes poner una clave gratis de Pixabay; sin clave, el botón abre Google Imágenes.

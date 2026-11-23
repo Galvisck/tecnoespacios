@@ -15,6 +15,6 @@ export default async req=>{
   if(b.newCred&&/^[a-f0-9]{64}$/.test(b.newCred))await st.set('cred',b.newCred);
   if(b.a==='img'){const url=await guardar(st,b.data||'');return url?J({url}):J({e:'Imagen no válida o muy grande'},400)}
   if(b.a==='fetch'){try{const r=await fetch(b.url,{headers:{'user-agent':'Mozilla/5.0'}});const t=r.headers.get('content-type')||'';if(!r.ok||!t.startsWith('image/'))throw 0;const buf=Buffer.from(await r.arrayBuffer());if(buf.length>4e6)throw 1;const url=await guardar(st,'data:'+t.split(';')[0]+';base64,'+buf.toString('base64'));return url?J({url}):J({e:'Imagen no válida'},400)}catch{return J({e:'No se pudo traer esa imagen. Prueba con otra o súbela desde tu equipo.'},400)}}
-  if(b.data){delete b.data.cred;await st.setJSON('datos',b.data)}
+  if(b.data){delete b.data.cred;await st.setJSON('datos',b.data);await st.delete('llm').catch(()=>{})}
   return J({ok:1})
 }
