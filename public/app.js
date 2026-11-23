@@ -16,7 +16,7 @@ const cap=()=>{['n','s','d','c','x','v'].forEach(k=>{const e=q('#f-'+k);if(e&&ed
 const get=p=>p.split('.').reduce((o,k)=>o[k],D),set=(p,v)=>{const a=p.split('.'),l=a.pop();a.reduce((o,k)=>o[k],D)[l]=v};
 const today=()=>new Date().toISOString().slice(0,10),act=()=>D.items.filter(i=>i.k=='promos'&&(!i.v||i.v>=today()));
 const seen=()=>JSON.parse(localStorage.te_seen||'[]');
-function wa(){let n=(D.e.tel.split(',')[0]||'').replace(/\D/g,'');if(n.length==10)n='57'+n;return'https://wa.me/'+n+'?text='+encodeURIComponent('Hola '+D.e.nombre+', quiero cotizar.')}
+function wa(){let n=(D.e.tel.split(',')[0]||'').replace(/\D/g,'');if(n.length==10)n='57'+n;return'https://wa.me/'+n+'?text='+encodeURIComponent('Buen día, '+D.e.nombre+'. Estoy interesado en cotizar un proyecto de muebles a medida. Quedo atento a su respuesta. Gracias.')}
 function th(){const t=D.t,r=document.documentElement.style;[['bg','bg'],['sf','sf'],['ac','ac'],['tx','tx']].forEach(([a,b])=>r.setProperty('--'+a,t[b]));r.setProperty('--fh',"'"+t.fh+"'");r.setProperty('--fb',"'"+t.fb+"'");
 let l=q('#fl');if(!l){l=document.createElement('link');l.id='fl';l.rel='stylesheet';document.head.append(l)}l.href='https://fonts.googleapis.com/css2?family='+[...new Set([t.fh,t.fb])].map(f=>f.replace(/ /g,'+')+':wght@300;400;600;700').join('&family=')+'&display=swap'}
 const media=i=>i.img&&i.img[0]?`<img src="${i.img[0]}" alt="" loading="lazy">`:`<span style="background:${E(i.x||'#555')}"></span>`;
