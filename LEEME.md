@@ -28,3 +28,31 @@ Buscar fotos: en la pestaña Búsqueda y guardado puedes poner una clave gratis 
 - **Pegar lista**: una línea por producto `Nombre | Subtítulo | https://foto | #color` (también sirve pegar columnas de Excel).
 - Cada fila se edita ahí mismo (nombre, categoría, color; clic en la miniatura para cambiar la foto).
 - En el sitio público las categorías también salen a la izquierda (arriba en celular).
+
+
+# Rediseño visual y SEO
+Esta versión conserva el panel administrativo y el guardado persistente existente mediante Netlify Blobs. No requiere Supabase.
+
+Mejoras incluidas:
+- Nueva identidad visual editorial en tonos cálidos, madera y neutros.
+- Encabezado, navegación, botones, tarjetas, galerías y formularios rediseñados.
+- Mejor adaptación a móviles, accesibilidad básica y movimiento reducido.
+- Títulos y descripciones por sección.
+- Metadatos para compartir en redes sociales.
+- Datos estructurados de tipo FurnitureStore.
+- `robots.txt` y `sitemap.xml`.
+- Cabeceras básicas de seguridad y caché en Netlify.
+
+## Pasos recomendados para mejorar la presencia en Google
+1. Publica el proyecto desde GitHub conectado a Netlify. No uses Netlify Drop, porque las funciones de Netlify Blobs deben desplegarse correctamente.
+2. Comprueba que `https://tecnoespacios.homes/robots.txt` y `https://tecnoespacios.homes/sitemap.xml` abran correctamente.
+3. Registra el dominio en Google Search Console, verifica la propiedad y envía `https://tecnoespacios.homes/sitemap.xml`.
+4. En Search Console revisa la inspección de URL, indexación, consultas y errores.
+5. Completa un Perfil de Empresa en Google con el nombre real, teléfono, ubicación o zona de servicio, horarios, fotos y categorías correctas.
+6. Publica fotografías reales de trabajos con nombres descriptivos y texto alternativo; agrega descripciones originales a cada proyecto.
+7. Pide reseñas auténticas a clientes y responde de forma profesional.
+8. Mantén actualizados los proyectos, servicios, datos de contacto y contenido.
+
+El SEO no garantiza aparecer primero ni que Google muestre siempre el sitio para cualquier búsqueda. La posición depende de muchos factores y toma tiempo. Esta versión deja una base técnica y de contenido mejor preparada, pero se debe trabajar continuamente y medir los resultados en Search Console.
+
+Importante: el dominio y los datos de contacto del marcado estructurado deben revisarse si cambian. Añade la ciudad o zona real de atención en el contenido público desde el panel; no publiques una dirección que no quieras hacer pública.
