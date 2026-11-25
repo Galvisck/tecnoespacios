@@ -13,7 +13,13 @@ export default async req=>{
   const name=clean(b.name,80), message=clean(b.message,1000), session=clean(b.session,80);
   if(name.length<2||message.length<1||!session)return J({e:'Completa tu nombre y mensaje.'},400);
   const item={id:crypto.randomUUID(),session,name,message,from:'visitor',at:new Date().toISOString(),read:false};
-  all.push(item); await st.setJSON('chat-mensajes',all.slice(-1000)); return J({ok:true,message:item});
+  all.push(item);
+  const rules=Array.isArray(b.rules)?b.rules.slice(0,50):[];
+  const normalized=message.toLocaleLowerCase('es');
+  const match=rules.find(r=>{const keyword=clean(r?.keyword,100).toLocaleLowerCase('es');return keyword&&clean(r?.response,1000)&&normalized.includes(keyword)});
+  let automatic=null;
+  if(match){automatic={id:crypto.randomUUID(),session,name:'TECNO ESPACIOS',message:clean(match.response,1000),from:'admin',at:new Date().toISOString(),read:true,automatic:true};all.push(automatic)}
+  await st.setJSON('chat-mensajes',all.slice(-1000)); return J({ok:true,message:item,automatic});
  }
  if(!admin)return J({e:'No autorizado'},401);
  if(b.action==='list') return J({ok:true,messages:all.slice(-300)});

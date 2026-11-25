@@ -79,3 +79,9 @@ Para publicar, sube todos los archivos a GitHub y espera el despliegue de Netlif
 - El panel organiza las opciones en General, Contenido, Productos y Atención al cliente.
 
 Al publicar, conserva el mismo sitio de Netlify y el mismo almacenamiento Blobs. Despliega el proyecto completo desde GitHub para que las funciones de Netlify sigan activas.
+
+
+## Ajustes de esta versión
+- Se retiró del menú el apartado «Personaliza tu mueble» y su ruta antigua ahora vuelve al inicio.
+- El botón flotante del chat quedó ubicado a media altura del lado derecho, tanto en escritorio como en móvil.
+- Se ajustó la caché de `index.html`, `app.js` y `estilos.css` para que el navegador valide los archivos nuevos al publicar una versión.
