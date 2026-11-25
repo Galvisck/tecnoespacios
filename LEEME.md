@@ -68,14 +68,14 @@ Importante: el dominio y los datos de contacto del marcado estructurado deben re
 
 Para publicar, sube todos los archivos a GitHub y espera el despliegue de Netlify. No publiques solamente la carpeta `public`: también se requiere la carpeta `netlify/functions` para el chat y el almacenamiento.
 
-# Actualización TECNO.SHOP, cuentas y fidelización
-- La tienda se muestra en `https://tecnoespacios.homes/shop` con identidad TECNO.SHOP, portada configurable, catálogo por categorías, buscador, favoritos y carrito.
-- El botón «Mi cuenta» permite registrarse o iniciar sesión con nombre, correo, celular y contraseña. Las contraseñas se almacenan como hashes PBKDF2 con salt; nunca se guardan en texto plano.
-- Los perfiles, favoritos, cupones y mensajes se guardan en Netlify Blobs mediante `netlify/functions/shop-cuenta.mjs`. No requiere Supabase ni otra cuenta externa. Las sesiones tienen vencimiento de 30 días.
-- El carrito queda guardado en el navegador del cliente y permite enviar el pedido preparado a WhatsApp. El valor es aproximado y el pedido debe confirmarse con TECNO ESPACIOS.
-- Panel > Clientes de la tienda: registra compras únicamente después de verificarlas; envía códigos de cupón y mensajes que el cliente verá al entrar a «Mi cuenta». No se contabilizan compras automáticamente a partir de consultas de WhatsApp.
-- Panel > TECNO SHOP permite modificar título, texto e imagen de portada, además de crear productos con categoría, precio, descripción e imagen.
-- Panel > Pie de página permite cambiar los textos y enlaces sociales del pie de todas las páginas.
-- El chat flotante ahora respeta el atributo `hidden` y el botón × lo cierra correctamente. Se puede volver a abrir desde el botón flotante.
+# Actualización: catálogo de productos y personalizador visual
+- `/shop` ahora es un catálogo sencillo de productos disponibles; no tiene registro de clientes, carrito ni proceso de compra.
+- En Panel > Productos en venta puedes crear, editar y eliminar fichas con nombre, categoría, precio, descripción, fotografía, tiempo estimado de entrega y estado AGOTADO.
+- Cada producto tiene un botón de consulta que abre WhatsApp con el nombre, categoría, precio, descripción, entrega y disponibilidad. Si está agotado, se indica en el mensaje que el cliente desea consultar próxima disponibilidad.
+- La portada de TECNO SHOP permite cambiar el título, descripción e imagen desde el panel. El nombre se muestra sin punto: TECNO SHOP.
+- `/personalizador` contiene dos modelos de cocina, dos de clóset y dos de escritorio. El visitante puede cambiar el tipo, el modelo y el color; la vista es una ilustración orientativa, no un render técnico ni una cotización automática.
+- El personalizador permite enviar por WhatsApp el modelo y color elegidos para solicitar una cotización.
+- Los datos se guardan con el sistema actual de Netlify Blobs; no se requiere Supabase.
+- El panel organiza las opciones en General, Contenido, Productos y Atención al cliente.
 
-Al publicar, conserva el mismo sitio de Netlify y el mismo almacenamiento Blobs. La nueva función `shop-cuenta.mjs` se publica junto con las demás funciones al desplegar desde GitHub.
+Al publicar, conserva el mismo sitio de Netlify y el mismo almacenamiento Blobs. Despliega el proyecto completo desde GitHub para que las funciones de Netlify sigan activas.
