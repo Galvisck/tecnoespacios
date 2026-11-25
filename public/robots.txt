@@ -1,1 +1,4 @@
-User-agent: *\nAllow: /\nDisallow: /#/admin\nSitemap: https://tecnoespacios.homes/sitemap.xml\n
+User-agent: *
+Allow: /
+Disallow: /#/admin
+Sitemap: https://tecnoespacios.homes/sitemap.xml

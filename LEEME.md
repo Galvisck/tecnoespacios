@@ -56,3 +56,26 @@ Mejoras incluidas:
 El SEO no garantiza aparecer primero ni que Google muestre siempre el sitio para cualquier búsqueda. La posición depende de muchos factores y toma tiempo. Esta versión deja una base técnica y de contenido mejor preparada, pero se debe trabajar continuamente y medir los resultados en Search Console.
 
 Importante: el dominio y los datos de contacto del marcado estructurado deben revisarse si cambian. Añade la ciudad o zona real de atención en el contenido público desde el panel; no publiques una dirección que no quieras hacer pública.
+
+
+# TECNO SHOP, chat y contacto
+- **TECNO SHOP** está disponible en `/shop`. En Panel > TECNO SHOP puedes crear productos, subir una imagen, asignar precio y descripción, editar o eliminar productos. Los datos se guardan en Netlify Blobs.
+- **Chat en vivo**: el botón flotante permite que los visitantes escriban su nombre y pregunta. En Panel > Chat en vivo puedes consultar conversaciones, responder y usar respuestas predeterminadas. Las conversaciones se guardan en Netlify Blobs mediante `netlify/functions/chat.mjs`.
+- **Respuestas predeterminadas**: en Panel > Chat en vivo escribe una respuesta por línea. Pulsa una respuesta rápida para enviarla al chat seleccionado.
+- **Contacto**: el formulario solicita nombre, asunto y mensaje. Puede abrir WhatsApp con el texto preparado o enviar el formulario mediante Netlify Forms. En Netlify, activa las notificaciones por correo para el formulario «contacto» y define la dirección receptora. Si Netlify Forms no está habilitado, se ofrece como respaldo abrir la aplicación de correo del visitante.
+- **Tarjeta de presentación**: en Contacto, pulsa «Ampliar tarjeta de presentación» para ver frente y reverso en tamaño grande.
+- **Fuentes**: Panel > Apariencia incluye nuevas familias tipográficas adicionales para títulos y textos.
+
+Para publicar, sube todos los archivos a GitHub y espera el despliegue de Netlify. No publiques solamente la carpeta `public`: también se requiere la carpeta `netlify/functions` para el chat y el almacenamiento.
+
+# Actualización TECNO.SHOP, cuentas y fidelización
+- La tienda se muestra en `https://tecnoespacios.homes/shop` con identidad TECNO.SHOP, portada configurable, catálogo por categorías, buscador, favoritos y carrito.
+- El botón «Mi cuenta» permite registrarse o iniciar sesión con nombre, correo, celular y contraseña. Las contraseñas se almacenan como hashes PBKDF2 con salt; nunca se guardan en texto plano.
+- Los perfiles, favoritos, cupones y mensajes se guardan en Netlify Blobs mediante `netlify/functions/shop-cuenta.mjs`. No requiere Supabase ni otra cuenta externa. Las sesiones tienen vencimiento de 30 días.
+- El carrito queda guardado en el navegador del cliente y permite enviar el pedido preparado a WhatsApp. El valor es aproximado y el pedido debe confirmarse con TECNO ESPACIOS.
+- Panel > Clientes de la tienda: registra compras únicamente después de verificarlas; envía códigos de cupón y mensajes que el cliente verá al entrar a «Mi cuenta». No se contabilizan compras automáticamente a partir de consultas de WhatsApp.
+- Panel > TECNO SHOP permite modificar título, texto e imagen de portada, además de crear productos con categoría, precio, descripción e imagen.
+- Panel > Pie de página permite cambiar los textos y enlaces sociales del pie de todas las páginas.
+- El chat flotante ahora respeta el atributo `hidden` y el botón × lo cierra correctamente. Se puede volver a abrir desde el botón flotante.
+
+Al publicar, conserva el mismo sitio de Netlify y el mismo almacenamiento Blobs. La nueva función `shop-cuenta.mjs` se publica junto con las demás funciones al desplegar desde GitHub.

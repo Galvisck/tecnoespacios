@@ -44,7 +44,12 @@
     <button id="mn" data-menu aria-label="Abrir menú" aria-expanded="false">☰</button>
   </header>
   <main id="app" tabindex="-1"></main>
-  <footer><span id="ft"></span><span>Diseño de espacios · Mobiliario a medida</span></footer>
+  <form name="contacto" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="contacto">
+    <input name="bot-field">
+    <input name="nombre"><input name="asunto"><textarea name="mensaje"></textarea><input name="correo-destino">
+  </form>
+  <footer><span id="ft"></span><span id="ft2">Diseño de espacios · Mobiliario a medida</span><span class="footer-social" id="footerSocial"></span></footer>
   <script src="qr.js"></script><script src="datos.js"></script><script src="app.js"></script>
 </body>
 </html>
