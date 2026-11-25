@@ -17,11 +17,11 @@ Panel > Apariencia:
 - Protección contra spam: campo oculto y límite de 3 reseñas por hora por conexión. Las aprobadas salen también en el inicio (las 3 más recientes).
 
 # Catálogo
-Colores, Mesones, Herrajes y Electrodomésticos empiezan **vacíos**: agrégalos desde el panel. Cada sección aparece en el menú del sitio cuando tiene al menos un elemento.
+Colores y Mesones empiezan **vacíos**: agrégalos desde el panel. Cada sección aparece en el menú del sitio cuando tiene al menos un elemento.
 Si el sitio ya tenía datos guardados, el catálogo base anterior se quita solo la primera vez que entres al panel; lo que hayas creado tú con tus propias descripciones se conserva.
 Buscar fotos: en la pestaña Búsqueda y guardado puedes poner una clave gratis de Pixabay; sin clave, el botón abre Google Imágenes.
 
-# Añadir productos rápido (panel > Colores, Mesones, Herrajes, Electrodomésticos, Proyectos)
+# Añadir productos rápido (panel > Proyectos, Mesones, Colores)
 - A la izquierda están las **categorías** (con conteo). Elige una y todo lo que añadas queda dentro. «+ Nueva categoría» y «✎ Renombrar» las gestionan.
 - **Añadir rápido**: nombre + subtítulo (ya viene con la categoría) + enlace de foto opcional, y Enter. En Colores el tono se toma solo de la foto.
 - **Subir varias fotos** (o arrastrarlas al cuadro): crea un producto por foto con el nombre del archivo.
