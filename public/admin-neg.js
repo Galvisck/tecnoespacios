@@ -7,7 +7,7 @@ const CLI={nuevo:'Nuevo interesado',contactado:'Contactado',negociacion:'En nego
 const ORIG={pagina:'Página web',whatsapp:'WhatsApp',chat:'Chat',formulario:'Formulario',personalizador:'Personalizador',otro:'Otro'};
 const SOLE={nueva:'Nueva',revisada:'Revisada',cotizada:'Cotizada',proyecto:'Convertida en proyecto',descartada:'Descartada'};
 const CANAL={cotizacion:'Cotización',whatsapp:'WhatsApp',chat:'Chat',guardada:'Guardada'};
-const TIPOS=['Cocina integral','Closet','Mueble de baño','Muebles personalizados'];
+const TIPOS=['Cocina integral','Closet','Mueble de baño','Centro de entretenimiento','Muebles personalizados'];
 const PROY=['Solicitud recibida','En revisión','Diseño y planificación','Cotización enviada','Cotización aprobada','En fabricación','En preparación para instalación','En instalación','Proyecto finalizado'];
 const PARTES=[['puertas','Puertas'],['estructura','Estructura'],['cajones','Cajones'],['laterales','Laterales'],['divisiones','Divisiones']];
 const NS={sol:null,cli:null,pro:null,st:null,bk:null,det:null,err:'',msg:'',pzV:'sol',solSel:'',solF:{estado:'',canal:''},cliV:'tablero',cliSel:'',cliForm:null,cliF:{q:'',estado:'',origen:'',tipo:'',desde:''},proSel:'',proForm:null,stR:'30',stD:'',stH:''};
@@ -50,8 +50,9 @@ function pzView(){
   ${l.length?`<div class="adm-items">${l.map(s=>`<article class="adm-item adm-click" data-n="solopen" data-id="${s.id}"><div class="adm-item-body"><b>${esc(s.codigo)} · ${esc(s.contacto.nombre)}</b><small>${esc(({cocina:'Cocina integral',closet:'Closet',bano:'Mueble de baño',personalizado:'Muebles personalizados'})[s.tipo]||s.tipo)} · ${esc(s.contacto.telefono)} · ${fdt(s.creada)}</small></div><div class="adm-item-act">${pill(CANAL[s.canal]||s.canal)}${pill(SOLE[s.estado]||s.estado,s.estado==='nueva'?'activas':s.estado==='descartada'?'vencidas':'proximas')}</div></article>`).join('')}</div>`:'<p class="adm-empty">Todavía no hay solicitudes del personalizador.</p>'}`;
 }
 function solDetail(s){
-  const tn=({cocina:'Cocina integral',closet:'Closet',bano:'Mueble de baño',personalizado:'Muebles personalizados'})[s.tipo]||s.tipo,m=s.medidas||{};
-  const filas=[['Mueble',tn+(s.descripcion?' — '+s.descripcion:'')],['Estilo',s.estilo],['Material',s.material],['Puertas',s.puertas],['Cajones',s.cajones],['Tiradores',s.tiradores],['Herrajes',s.herrajes],['Medidas',(m.ancho||m.alto||m.prof)?`${m.ancho||'—'} × ${m.alto||'—'} × ${m.prof||'—'} cm`:''],['Observaciones',s.obs]].filter(x=>x[1]);
+  const tn=({cocina:'Cocina integral',closet:'Closet',bano:'Mueble de baño',entretenimiento:'Centro de entretenimiento',personalizado:'Muebles personalizados'})[s.tipo]||s.tipo,m=s.medidas||{};
+  const dn=({'cocina-lineal':'Cocina lineal','cocina-l':'Cocina en L','cocina-isla':'Cocina con isla','closet-corredizo':'Clóset corredizo','closet-abatible':'Clóset abatible','closet-vestier':'Vestier abierto','bano-flotante':'Mueble flotante','bano-doble':'Lavamanos doble','bano-torre':'Mueble con torre','tv-panel':'Panel para TV','tv-modular':'Centro modular','tv-flotante':'Mueble flotante','personalizado-base':'Diseño a medida','personalizado-almacenaje':'Mueble de almacenamiento','personalizado-decorativo':'Mueble decorativo'})[s.diseno]||s.diseno;
+  const filas=[['Mueble',tn+(s.descripcion?' — '+s.descripcion:'')],['Diseño',dn],['Estilo',s.estilo],['Material',s.material],['Puertas',s.puertas],['Cajones',s.cajones],['Tiradores',s.tiradores],['Herrajes',s.herrajes],['Medidas',(m.ancho||m.alto||m.prof)?`${m.ancho||'—'} × ${m.alto||'—'} × ${m.prof||'—'} cm`:''],['Observaciones',s.obs]].filter(x=>x[1]);
   const cols=PARTES.filter(([p])=>s.colores&&s.colores[p]);
   const c=(NS.cli||[]).find(x=>x.id===s.clienteId);
   return `<button class="b o sm" data-n="solback" type="button">← Volver a solicitudes</button>${msgBar()}

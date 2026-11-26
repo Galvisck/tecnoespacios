@@ -23,7 +23,7 @@ export const ipHash=async req=>{const ip=req.headers.get('x-nf-client-connection
 
 export const ESTADOS_CLI=['nuevo','contactado','negociacion','cotizacion','pendiente','vendido','perdido'];
 export const ESTADOS_PROY=['Solicitud recibida','En revisión','Diseño y planificación','Cotización enviada','Cotización aprobada','En fabricación','En preparación para instalación','En instalación','Proyecto finalizado'];
-export const TIPOS={cocina:'Cocina integral',closet:'Closet',bano:'Mueble de baño',personalizado:'Muebles personalizados'};
+export const TIPOS={cocina:'Cocina integral',closet:'Closet',bano:'Mueble de baño',entretenimiento:'Centro de entretenimiento',personalizado:'Muebles personalizados'};
 export const PARTES=['puertas','estructura','cajones','laterales','divisiones'];
 
 // Límite de intentos por conexión (ventana deslizante) guardado en el almacén

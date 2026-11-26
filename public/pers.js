@@ -45,7 +45,14 @@ addEventListener('DOMContentLoaded',()=>{TRK.banner();TRK.page()});
 
 /* =============== PERSONALIZADOR =============== */
 const PARTES=[['puertas','Puertas'],['estructura','Estructura'],['cajones','Cajones'],['laterales','Laterales'],['divisiones','Divisiones']];
-const TIPOS=[['cocina','Cocina integral','🍳'],['closet','Closet','🚪'],['bano','Mueble de baño','🛁'],['personalizado','Muebles personalizados','✏️']];
+const TIPOS=[['cocina','Cocina integral','🍳'],['closet','Clóset','🚪'],['bano','Mueble de baño','🛁'],['entretenimiento','Centro de entretenimiento','📺'],['personalizado','Muebles personalizados','✏️']];
+const DISENOS={
+ cocina:[['cocina-lineal','Cocina lineal','Distribución recta: muebles altos y bajos en una sola pared.','▰'],['cocina-l','Cocina en L','Aprovecha dos paredes y libera el centro del espacio.','⌞'],['cocina-isla','Cocina con isla','Muebles perimetrales y una isla central multifuncional.','▦']],
+ closet:[['closet-corredizo','Clóset corredizo','Frente limpio con puertas deslizables y distribución interior.','▥'],['closet-abatible','Clóset abatible','Puertas tradicionales, cajonera y entrepaños accesibles.','▤'],['closet-vestier','Vestier abierto','Distribución abierta con módulos, repisas y cajones.','▦']],
+ bano:[['bano-flotante','Mueble flotante','Diseño suspendido con cajones y lavamanos superior.','▱'],['bano-doble','Lavamanos doble','Mueble amplio con dos zonas de almacenamiento.','▤'],['bano-torre','Mueble con torre','Vanity compacto acompañado de torre lateral.','▥']],
+ entretenimiento:[['tv-panel','Panel para TV','Panel central para televisor con repisas laterales.','▣'],['tv-modular','Centro modular','Módulos bajos y superiores para equipos y decoración.','▤'],['tv-flotante','Mueble flotante','Diseño suspendido con panel decorativo y cajones.','▱']],
+ personalizado:[['personalizado-base','Diseño a medida','Partimos de una idea libre y la adaptamos a tu espacio.','✎'],['personalizado-almacenaje','Mueble de almacenamiento','Prioriza puertas, cajones y entrepaños según tu necesidad.','▤'],['personalizado-decorativo','Mueble decorativo','Combina paneles, nichos y repisas a tu gusto.','▦']]
+};
 const DEF={estilos:'Moderno\nClásico\nMinimalista\nRústico\nIndustrial',materiales:'Melamina\nMDF enchapado\nMadera maciza',puertas:'Abatibles\nCorredizas\nSin tirador (push to open)',cajones:'Sin cajones\nCajones estándar\nCajones con cierre suave',tiradores:'Tirador de borde\nTirador de barra\nPomo\nSin tirador',herrajes:'Bisagras estándar\nBisagras de cierre suave\nCorrederas de cierre suave',tarifas:{},diasAlerta:3};
 const cfg=()=>({...DEF,...((typeof D!=='undefined'&&D&&D.pz)||{})});
 const opts=k=>String(cfg()[k]||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const [n,p]=l.split('|').map(x=>x.trim());return{n,p:Number(String(p||'').replace(/[^\d.]/g,''))||0}});
@@ -77,7 +84,7 @@ function validar(){
 }
 const hasMeson=()=>S.tipo!=='closet'&&mesones().length>0;
 const grupos=()=>[['material','Material','materiales'],['puertas','Tipo de puertas','puertas'],['cajones','Cajones','cajones'],['tiradores','Tiradores','tiradores'],['herrajes','Herrajes','herrajes']].filter(g=>opts(g[2]).length);
-const pasos=()=>{const s=[['tipo','Tipo']];if(opts('estilos').length)s.push(['estilo','Estilo']);s.push(['color','Colores']);if(grupos().length||hasMeson())s.push(['mat','Materiales']);s.push(['med','Medidas'],['res','Resumen']);return s};
+const pasos=()=>{const s=[['tipo','Tipo'],['diseno','Diseño']];if(opts('estilos').length)s.push(['estilo','Estilo']);s.push(['color','Colores']);if(grupos().length||hasMeson())s.push(['mat','Materiales']);s.push(['med','Medidas'],['res','Resumen']);return s};
 const tipoN=t=>(TIPOS.find(x=>x[0]===t)||[])[1]||'';
 const medOk=v=>v===''||(Number(String(v).replace(',','.'))>0);
 const medN=v=>Number(String(v||'').replace(',','.'))||0;
@@ -146,6 +153,75 @@ function side(){
 
 /* ---------- Pasos ---------- */
 const opt=(k,v,sel)=>`<button type="button" class="pz-opt${sel?' on':''}" data-pz="opt" data-k="${k}" data-v="${esc(v)}">${esc(v)}</button>`;
+function ilustracionDiseno(id){
+ const wood='#b88b5e',wood2='#d4b18a',dark='#51463d',light='#eee9e1',top='#f7f5f0',line='#786b5d';
+ const rect=(x,y,w,h,fill=wood,rx=2)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" stroke="${line}" stroke-width="1.4"/>`;
+ const knob=(x,y)=>`<circle cx="${x}" cy="${y}" r="2" fill="#eee8dc" stroke="#6b5b4b" stroke-width=".8"/>`;
+ const door=(x,y,w,h,fill=wood2)=>rect(x,y,w,h,fill,1);
+ const drawer=(x,y,w,h)=>rect(x,y,w,h,'#c69b70',1)+`<path d="M${x+w/2-5} ${y+h/2}h10" stroke="#5e5145" stroke-width="2" stroke-linecap="round"/>`;
+ const wall=`<rect width="240" height="150" fill="#f2eee8"/><path d="M0 130H240" stroke="#d3c9bc" stroke-width="2"/>`;
+ let a=wall;
+ switch(id){
+ case 'cocina-lineal':
+   a+=rect(18,66,204,12,top)+rect(20,78,200,38,wood)+door(23,81,42,32)+door(68,81,42,32)+rect(113,81,47,32,'#e2d8c9')+door(163,81,53,32);
+   a+=rect(20,33,200,30,light)+door(24,36,58,24)+door(85,36,58,24)+door(146,36,70,24);
+   a+=rect(119,84,33,4,'#9aa6a8')+rect(128,89,14,20,'#9aa6a8')+knob(61,96)+knob(106,96)+knob(177,96);
+   a+=`<path d="M18 65H222" stroke="#a69b8e" stroke-width="2"/>`;break;
+ case 'cocina-l':
+   a+=rect(24,66,190,12,top)+rect(24,78,190,39,wood)+door(28,81,42,32)+door(73,81,42,32)+door(118,81,42,32)+door(163,81,47,32);
+   a+=rect(24,35,190,27,light)+door(28,38,55,20)+door(86,38,55,20)+door(144,38,66,20);
+   a+=rect(24,78,48,39,wood)+rect(18,67,12,50,top)+rect(18,78,12,39,wood);
+   a+=knob(62,97)+knob(107,97)+knob(152,97)+knob(197,97);break;
+ case 'cocina-isla':
+   a+=rect(13,42,214,10,top)+rect(16,52,208,34,wood)+door(20,55,46,28)+door(70,55,46,28)+door(120,55,46,28)+door(170,55,50,28);
+   a+=rect(62,96,116,10,top)+rect(66,106,108,26,wood)+door(70,109,45,20)+door(119,109,49,20)+knob(91,119)+knob(143,119);
+   a+=rect(80,30,32,10,'#c5c0b7')+rect(84,19,24,11,'#aab3b4');break;
+ case 'closet-corredizo':
+   a+=rect(27,16,186,112,'#8b6a4c')+rect(34,22,172,100,'#e1d0ba');
+   a+=rect(36,24,82,96,'#c7a27a')+rect(122,24,82,96,'#b78b60');
+   a+=`<path d="M119 23V121M121 23V121" stroke="#6e5844" stroke-width="2"/>`+rect(108,66,4,16,'#eee8df',2)+rect(126,66,4,16,'#eee8df',2);
+   a+=rect(42,30,70,5,'#eee5d9')+rect(128,30,70,5,'#eee5d9');break;
+ case 'closet-abatible':
+   a+=rect(27,16,186,112,'#8b6a4c')+door(34,22,54,100,'#d3b18b')+door(91,22,54,100,'#c39a6d')+door(148,22,58,100,'#d3b18b');
+   a+=knob(79,73)+knob(99,73)+knob(136,73)+knob(156,73);break;
+ case 'closet-vestier':
+   a+=rect(25,16,190,112,'#a17b56')+rect(32,23,176,98,'#f0e8dc');
+   a+=rect(35,25,52,4,dark)+rect(35,29,4,89,wood)+rect(83,29,4,89,wood);
+   a+=rect(94,25,108,4,dark)+rect(94,29,4,89,wood)+rect(198,29,4,89,wood);
+   a+=rect(39,48,43,4,wood)+rect(98,54,96,4,wood)+drawer(39,91,43,24)+drawer(98,91,96,24);
+   a+=`<path d="M43 34h34m-27 0v12m12-12v12m45-12h80" stroke="#8b7762" stroke-width="2"/>`;break;
+ case 'bano-flotante':
+   a+=rect(39,43,162,12,top)+rect(43,55,154,54,wood)+door(48,60,46,44)+door(98,60,46,44)+door(148,60,44,44);
+   a+=`<ellipse cx="120" cy="48" rx="29" ry="5" fill="#fff" stroke="#aaa" stroke-width="1.5"/><path d="M120 43v-9m-7 0h14" stroke="#aaa" stroke-width="2"/>`;
+   a+=drawer(53,73,35,14)+drawer(103,73,35,14)+drawer(153,73,34,14);break;
+ case 'bano-doble':
+   a+=rect(20,44,200,12,top)+rect(24,56,192,55,wood)+door(29,61,42,44)+door(77,61,42,44)+door(125,61,42,44)+door(173,61,38,44);
+   a+=`<ellipse cx="73" cy="47" rx="22" ry="5" fill="#fff" stroke="#aaa"/><ellipse cx="166" cy="47" rx="22" ry="5" fill="#fff" stroke="#aaa"/><path d="M73 41v-9m-5 0h10M166 41v-9m-5 0h10" stroke="#aaa" stroke-width="2"/>`;break;
+ case 'bano-torre':
+   a+=rect(26,52,144,12,top)+rect(30,64,136,47,wood)+door(35,68,39,38)+door(77,68,40,38)+door(120,68,41,38);
+   a+=rect(179,18,38,93,'#a67b52')+door(184,23,28,25,'#d7bd9d')+door(184,51,28,25,'#d7bd9d')+door(184,79,28,27,'#d7bd9d');
+   a+=`<ellipse cx="99" cy="56" rx="25" ry="5" fill="#fff" stroke="#aaa"/>`;break;
+ case 'tv-panel':
+   a+=rect(49,13,142,101,'#b88b5e')+rect(70,23,100,61,'#252a30')+rect(74,27,92,53,'#343b42');
+   a+=rect(21,100,198,10,top)+rect(26,110,188,22,wood)+door(31,113,57,16)+door(91,113,57,16)+door(152,113,57,16);
+   a+=rect(20,28,34,64,light)+rect(186,28,34,64,light)+`<path d="M26 38h22M26 47h22M192 38h22M192 47h22" stroke="#b18b65" stroke-width="3"/>`;break;
+ case 'tv-modular':
+   a+=rect(21,22,198,9,top)+rect(25,31,190,31,wood)+door(30,35,55,23)+door(91,35,58,23)+door(155,35,55,23);
+   a+=rect(15,83,210,10,top)+rect(20,93,200,37,wood)+door(25,98,57,27)+door(88,98,60,27)+door(154,98,61,27);
+   a+=rect(85,67,70,9,light)+rect(91,76,58,7,'#d4c2aa');break;
+ case 'tv-flotante':
+   a+=rect(58,12,124,88,'#b88b5e')+rect(77,22,86,54,'#242a30')+rect(81,26,78,46,'#41484e');
+   a+=rect(30,103,180,9,top)+rect(35,112,170,18,wood)+door(41,115,48,12)+door(96,115,48,12)+door(151,115,48,12);
+   a+=`<path d="M45 132v3m150-3v3" stroke="#b3a99e" stroke-width="2"/>`;break;
+ default:
+   a+=rect(35,30,170,85,wood)+door(42,36,48,73)+door(94,36,52,73)+door(150,36,48,73);
+ }
+ return `<svg viewBox="0 0 240 150" role="img" aria-label="Vista ilustrativa de ${id}" xmlns="http://www.w3.org/2000/svg">${a}</svg>`;
+}
+function pasoDiseno(){
+ const lista=DISENOS[S.tipo]||[];
+ return `<p class="pz-help">Escoge el modelo que más se parece a lo que buscas. Cada tarjeta muestra una ilustración del mueble; después podrás personalizarlo.</p><div class="pz-disenos">${lista.map(([id,n,d])=>`<button type="button" class="pz-diseno${S.diseno===id?' on':''}" data-pz="diseno" data-v="${id}"><span class="pz-diseno-art">${ilustracionDiseno(id)}</span><span class="pz-diseno-copy"><b>${n}</b><small>${d}</small></span><i>${S.diseno===id?'✓ Seleccionado':'Elegir diseño'}</i></button>`).join('')}</div>`;
+}
 function pasoColor(){
   const all=colores();
   if(!all.length)return '<p class="pz-vacio">Aún no hay colores publicados en el catálogo.</p>';
@@ -176,7 +252,7 @@ function pasoMed(){
   <label>Observaciones y necesidades especiales<textarea data-pz-in="obs" rows="4" maxlength="1200" placeholder="Ej. Espacio para horno, tomas eléctricas, nevera de 80 cm…">${esc(S.obs)}</textarea></label>`;
 }
 function filas(){
-  const f=[['Mueble',tipoN(S.tipo)+(S.descripcion?' — '+S.descripcion:'')],['Estilo',S.estilo],['Material',S.material],['Puertas',S.puertas],['Cajones',S.cajones],['Tiradores',S.tiradores],['Herrajes',S.herrajes]];
+  const dn=(DISENOS[S.tipo]||[]).find(x=>x[0]===S.diseno);const f=[['Mueble',tipoN(S.tipo)+(S.descripcion?' — '+S.descripcion:'')],['Diseño',dn?dn[1]:''],['Estilo',S.estilo],['Material',S.material],['Puertas',S.puertas],['Cajones',S.cajones],['Tiradores',S.tiradores],['Herrajes',S.herrajes]];
   const m=mesonDe(S.meson);if(m)f.splice(2,0,['Mesón',lineaColor(m)]);
   const me=S.medidas;if([me.ancho,me.alto,me.prof].some(Boolean))f.push(['Medidas',`${me.ancho||'—'} × ${me.alto||'—'} × ${me.prof||'—'} cm (ancho × alto × profundidad)`]);
   if(S.obs)f.push(['Observaciones',S.obs]);
@@ -212,13 +288,14 @@ function paint(){
   validar();const ps=pasos();if(S.paso>=ps.length)S.paso=ps.length-1;if(S.paso<0)S.paso=0;
   const id=ps[S.paso][0];let body='';
   if(id==='tipo')body=`<h3>¿Qué mueble quieres diseñar?</h3><div class="pz-tipos">${TIPOS.map(([k,n,ic])=>`<button type="button" class="pz-tipo${S.tipo===k?' on':''}" data-pz="tipo" data-v="${k}"><span>${ic}</span><b>${n}</b></button>`).join('')}</div>`;
+  if(id==='diseno')body=`<h3>Elige un diseño de referencia</h3>${pasoDiseno()}`;
   if(id==='estilo')body=`<h3>Elige un estilo</h3><div class="pz-opts">${opts('estilos').map(x=>opt('estilo',x.n,S.estilo===x.n)).join('')}</div>`;
   if(id==='color')body=`<h3>Colores y acabados</h3>${pasoColor()}`;
   if(id==='mat')body=`<h3>Materiales, puertas y herrajes</h3>${pasoMat()}`;
   if(id==='med')body=`<h3>Medidas y observaciones</h3>${pasoMed()}`;
   if(id==='res')body=`<h3>${S.enviado?'Solicitud enviada':'Revisa tu diseño'}</h3>${pasoRes()}`;
   const ultimo=S.paso===ps.length-1;
-  root.innerHTML=`<div class="pz-wrap"><div class="pz-main"><ol class="pz-steps">${ps.map(([k,n],i)=>`<li class="${i===S.paso?'on':i<S.paso?'done':''}"><button type="button" data-pz="ir" data-v="${i}" ${i>S.paso&&!S.tipo?'disabled':''}><i>${i<S.paso?'✓':i+1}</i><span>${n}</span></button></li>`).join('')}</ol>
+  root.innerHTML=`<div class="pz-wrap"><div class="pz-main"><ol class="pz-steps">${ps.map(([k,n],i)=>`<li class="${i===S.paso?'on':i<S.paso?'done':''}"><button type="button" data-pz="ir" data-v="${i}" ${i>S.paso&&(!S.tipo||(ps.some((x,j)=>x[0]==='diseno'&&j<i)&&!S.diseno))?'disabled':''}><i>${i<S.paso?'✓':i+1}</i><span>${n}</span></button></li>`).join('')}</ol>
   ${S.aviso?`<p class="pz-aviso" role="status">${esc(S.aviso)}</p>`:''}<div class="pz-body">${body}</div>
   ${!S.enviado?`<div class="pz-nav">${S.paso>0?'<button class="b o" data-pz="atras" type="button">Atrás</button>':'<span></span>'}${!ultimo?`<button class="b" data-pz="sig" type="button" ${id==='tipo'&&!S.tipo?'disabled':''}>Siguiente</button>`:''}</div>`:''}</div><aside class="pz-side" id="pz-side"></aside></div>`;
   side();hydrate(root);crops();keep();
@@ -243,7 +320,8 @@ document.addEventListener('click',async e=>{
   if(a==='zclose'){document.querySelector('.pz-zoom')&&document.querySelector('.pz-zoom').remove();return}
   if(a==='usezoom'){aplicar(b.dataset.id);document.querySelector('.pz-zoom')&&document.querySelector('.pz-zoom').remove();paint();return}
   if(a==='zoom'){const c=colorDe(b.dataset.id);if(c)zoom(c);return}
-  if(a==='tipo'){S.tipo=v;S.aviso='';paint()}
+  if(a==='tipo'){S.tipo=v;S.diseno='';S.aviso='';paint()}
+  else if(a==='diseno'){S.diseno=v;S.aviso='';paint()}
   else if(a==='opt'){S[b.dataset.k]=S[b.dataset.k]===b.dataset.v?'':b.dataset.v;S.aviso='';paint()}
   else if(a==='parte'){S.parte=v;paint()}
   else if(a==='cat'){S.cat=v;paint()}
@@ -252,6 +330,8 @@ document.addEventListener('click',async e=>{
   else if(a==='ir'){S.paso=+v;S.aviso='';paint();scrollTo({top:$('#pz-root').offsetTop-70,behavior:'smooth'})}
   else if(a==='sig'){
     const id=ps[S.paso][0];
+    if(id==='tipo'&&!S.tipo){S.aviso='Selecciona el tipo de mueble.';paint();return}
+    if(id==='diseno'&&!S.diseno){S.aviso='Selecciona uno de los diseños de referencia.';paint();return}
     if(id==='med'&&!['ancho','alto','prof'].every(k=>medOk(S.medidas[k]))){S.aviso='Revisa las medidas: usa solo números mayores que cero.';paint();return}
     S.paso++;S.aviso='';paint();scrollTo({top:$('#pz-root').offsetTop-70,behavior:'smooth'})}
   else if(a==='atras'){S.paso--;S.aviso='';paint();scrollTo({top:$('#pz-root').offsetTop-70,behavior:'smooth'})}
@@ -271,7 +351,7 @@ async function enviar(canal){
   if(!['ancho','alto','prof'].every(k=>medOk(S.medidas[k])))return err('Revisa las medidas.');
   S.err='';S.busy=true;paint();
   let w=null;if(canal==='whatsapp'){try{w=_open.call(window,'','_blank')}catch{}}
-  const r=await pub({a:'solicitud',canal,hp:($('#pz-hp')||{}).value||'',contacto:c,sel:{tipo:S.tipo,estilo:S.estilo,colores:S.colores,material:S.material,meson:S.meson,puertas:S.puertas,cajones:S.cajones,tiradores:S.tiradores,herrajes:S.herrajes,medidas:S.medidas,obs:S.obs,descripcion:S.descripcion}});
+  const r=await pub({a:'solicitud',canal,hp:($('#pz-hp')||{}).value||'',contacto:c,sel:{tipo:S.tipo,diseno:S.diseno,estilo:S.estilo,colores:S.colores,material:S.material,meson:S.meson,puertas:S.puertas,cajones:S.cajones,tiradores:S.tiradores,herrajes:S.herrajes,medidas:S.medidas,obs:S.obs,descripcion:S.descripcion}});
   S.busy=false;
   if(!r.ok){if(w)w.close();S.err=r.e||'No se pudo enviar. Inténtalo de nuevo o escríbenos por WhatsApp.';if(r.status===409){validar();S.aviso=S.err;S.err=''}paint();return}
   S.enviado={codigo:r.codigo,canal};TRK.act('pers');TRK.act('cotiz');
@@ -287,8 +367,8 @@ async function enviar(canal){
 }
 
 const PZ={
-  view:()=>`<section class="pz"><div class="section-kicker">DISEÑA · PERSONALIZA · COTIZA</div><h2>Personaliza tu mueble</h2><p class="big">Elige el mueble, los colores y las medidas. Revisamos tu diseño y te enviamos la cotización.</p><div id="pz-root"></div></section>`,
-  paint,cfg,DEF
+  view:()=>`<section class="pz"><div class="section-kicker">DISEÑA · PERSONALIZA · COTIZA</div><h2>Personaliza tu mueble</h2><p class="big">Elige el mueble, los colores y las medidas. Revisamos tu diseño y te enviamos la cotización.</p><div class="pz-benefits"><span>✦ Diseña a tu gusto</span><span>▦ Explora acabados</span><span>✓ Solicita tu cotización</span></div><div id="pz-root"></div></section>`,
+  paint,cfg,DEF,reset:()=>{S=blank();try{sessionStorage.removeItem('te_pz')}catch{};const root=$('#pz-root');if(root)root.innerHTML=''}
 };
 
 /* =============== SEGUIMIENTO DE PROYECTOS =============== */

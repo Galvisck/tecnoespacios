@@ -57,7 +57,7 @@ async function solicitud(st,req,b){
     meson={id:it.id,nombre:str(it.n,120),categoria:str(it.s,80),ref:str(it.ref,60),img:str((it.img&&it.img[0])||'',300)};
   }
   const lista=(k,v)=>{v=str(v,100);if(!v)return '';const o=opciones(pz[k]);return !o.length||o.some(x=>x.n===v)?v:null};
-  const sel={tipo:s.tipo,estilo:lista('estilos',s.estilo),material:lista('materiales',s.material),puertas:lista('puertas',s.puertas),cajones:lista('cajones',s.cajones),tiradores:lista('tiradores',s.tiradores),herrajes:lista('herrajes',s.herrajes)};
+  const sel={tipo:s.tipo,diseno:str(s.diseno,80),estilo:lista('estilos',s.estilo),material:lista('materiales',s.material),puertas:lista('puertas',s.puertas),cajones:lista('cajones',s.cajones),tiradores:lista('tiradores',s.tiradores),herrajes:lista('herrajes',s.herrajes)};
   for(const k of Object.keys(sel))if(sel[k]===null)return J({e:'Una de las opciones elegidas ya no está disponible. Revisa tu selección.'},409);
   const m=s.medidas||{},med={ancho:num(m.ancho,0,2000),alto:num(m.alto,0,400),prof:num(m.prof,0,200)};
   for(const [k,v] of Object.entries({ancho:m.ancho,alto:m.alto,prof:m.prof}))if(v!==''&&v!=null&&med[k]==null)return J({e:'Revisa las medidas: ancho hasta 2000 cm, alto hasta 400 cm y profundidad hasta 200 cm.'},400);
