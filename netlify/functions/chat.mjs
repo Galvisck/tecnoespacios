@@ -32,6 +32,21 @@ export default async req=>{
   // Si el visitante dejó su teléfono, queda registrado en el CRM (sin duplicados)
   const phone=str(b.phone,30);
   if(digits(phone).length>=7){try{await upsertCliente(st,{nombre:name,telefono:phone,origen:'chat',sesion:session,evento:primero?'Chat en vivo: primer mensaje':''})}catch{}}
+  // Guarda el nombre y número del visitante en "Mensajes de contacto" (una ficha por conversación)
+  try{
+   const cm=(await st.get('contacto-mensajes',{type:'json'}))||[];
+   const tel=digits(phone).length>=7?phone:'';
+   const ex=cm.find(x=>x.origen==='chat'&&x.sesion===session);
+   if(ex){
+    let ch=false;
+    if(tel&&ex.telefono!==tel){ex.telefono=tel;ch=true}
+    if(name&&ex.nombre!==name){ex.nombre=name;ch=true}
+    if(ch)await st.setJSON('contacto-mensajes',cm);
+   }else{
+    cm.push({id:crypto.randomUUID(),at:item.at,nombre:name,correo:'',telefono:tel,asunto:'Chat en vivo',mensaje:message,origen:'chat',sesion:session,emailed:false});
+    await st.setJSON('contacto-mensajes',cm.slice(-500));
+   }
+  }catch{}
   const norm=v=>String(v||'').toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[¿?¡!.,;:]/g,' ').replace(/\s+/g,' ').trim();
   const similarity=(a,b)=>{a=norm(a);b=norm(b);if(!a||!b)return 0;if(a===b)return 1;if(a.includes(b)||b.includes(a))return Math.min(a.length,b.length)/Math.max(a.length,b.length);const m=a.length,n=b.length;if(!m||!n)return 0;let prev=Array.from({length:n+1},(_,i)=>i),cur=[];for(let i=1;i<=m;i++){cur=[i];for(let j=1;j<=n;j++)cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur;}return 1-prev[n]/Math.max(m,n)};
   const matches=(text,words,index)=>{const t=norm(text);if(t===String(index+1))return true;return words.some(w=>{const k=norm(w);if(!k)return false;if(t===k||t.includes(k)||k.includes(t)&&t.length>=3)return true;const ta=t.split(' '),ka=k.split(' ');return Math.max(similarity(t,k),...ta.map(x=>Math.max(...ka.map(y=>similarity(x,y)))))>=0.75})};
