@@ -1,5 +1,6 @@
 import {getStore} from '@netlify/blobs';
-import {upsertCliente,atenderPorSesion,digits,str} from './lib/negocio.mjs';
+import {upsertCliente,atenderPorSesion,digits,str,esAdmin} from './lib/negocio.mjs';
+import {respond} from './lib/chat-asistente.mjs';
 const J=(o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{'content-type':'application/json','cache-control':'no-store'}});
 const clean=(v,n=1200)=>String(v??'').replace(/[<>]/g,'').trim().slice(0,n);
 const TTL=30*60*1000, MAX=2000;
@@ -11,90 +12,56 @@ const abierta=(list,now=Date.now())=>{
  while(i>0&&Date.parse(list[i].at)-Date.parse(list[i-1].at)<=TTL)i--;
  return list.slice(i);
 };
+const handoffActive=items=>items.some(x=>x.handoff||(x.from==='admin'&&!x.automatic));
+const transcript=items=>({messages:items.slice(-100),handoff:handoffActive(items)});
 export default async req=>{
  // Lectura fuerte: un borrado se refleja de inmediato y no reaparece por datos desactualizados.
  const st=getStore({name:'tecnoespacios',consistency:'strong'});
  if(req.method==='GET') return J({ok:true,online:true});
  let b; try{b=await req.json()}catch{return J({e:'Solicitud inválida'},400)}
- const cred=(await st.get('cred'))||'102eadf5a95f7d262edefb1f2888cb8ded09635c5d71fa6c21d2def3902c299e';
- const admin=b.auth===cred;
+ if(!b || typeof b!=='object')return J({e:'Solicitud inválida'},400);
  const all=await st.get('chat-mensajes',{type:'json'})||[];
  if(b.action==='visitor-list'){
   const session=clean(b.session,80), mine=all.filter(x=>x.session===session), cur=abierta(mine);
-  return J({ok:true,messages:cur.slice(-100),expired:mine.length>0&&!cur.length});
+  return J({ok:true,...transcript(cur),expired:mine.length>0&&!cur.length});
  }
  if(b.action==='send'){
-  const name=clean(b.name,80), message=clean(b.message,1000), session=clean(b.session,80);
-  if(name.length<2||message.length<1||!session)return J({e:'Completa tu nombre y mensaje.'},400);
-  const primero=!all.some(x=>x.session===session&&x.from==='visitor');
-  const item={id:crypto.randomUUID(),session,name,message,from:'visitor',at:new Date().toISOString(),read:false};
+  const session=clean(b.session,80), message=clean(b.message,1000), phone=str(b.phone,30);
+  const name=clean(b.name,80)||'Visitante', requestId=clean(b.requestId,80);
+  if(!message||!session)return J({e:'Escribe un mensaje.'},400);
+  if(phone&&digits(phone).length<7)return J({e:'Revisa el número de WhatsApp.'},400);
+  const mine=all.filter(x=>x.session===session), history=abierta(mine);
+  if(mine.length&&!history.length)return J({e:'La conversación anterior venció.',expired:true},409);
+  const prior=requestId&&history.find(x=>x.from==='visitor'&&x.requestId===requestId);
+  if(prior)return J({ok:true,...transcript(history)});
+  const item={id:crypto.randomUUID(),session,name,message,from:'visitor',at:new Date().toISOString(),read:false,requestId};
+  const inHandoff=handoffActive(history);
+  const settings=inHandoff?null:await st.get('datos',{type:'json'});
+  const response=respond(message,history,settings,b.intent==='advisor');
+  const automatic=response&&{...response,id:crypto.randomUUID(),session,name:'TECNO ESPACIOS',
+   message:clean(response.message,1800),from:'admin',at:item.at,read:true,automatic:true};
   all.push(item);
-  // Si el visitante dejó su teléfono, queda registrado en el CRM (sin duplicados)
-  const phone=str(b.phone,30);
-  if(digits(phone).length>=7){try{await upsertCliente(st,{nombre:name,telefono:phone,origen:'chat',sesion:session,evento:primero?'Chat en vivo: primer mensaje':''})}catch{}}
-  // Guarda el nombre y número del visitante en "Mensajes de contacto" (una ficha por conversación)
-  try{
-   const cm=(await st.get('contacto-mensajes',{type:'json'}))||[];
-   const tel=digits(phone).length>=7?phone:'';
-   const ex=cm.find(x=>x.origen==='chat'&&x.sesion===session);
-   if(ex){
-    let ch=false;
-    if(tel&&ex.telefono!==tel){ex.telefono=tel;ch=true}
-    if(name&&ex.nombre!==name){ex.nombre=name;ch=true}
-    if(ch)await st.setJSON('contacto-mensajes',cm);
-   }else{
-    cm.push({id:crypto.randomUUID(),at:item.at,nombre:name,correo:'',telefono:tel,asunto:'Chat en vivo',mensaje:message,origen:'chat',sesion:session,emailed:false});
-    await st.setJSON('contacto-mensajes',cm.slice(-500));
-   }
-  }catch{}
-  const norm=v=>String(v||'').toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[¿?¡!.,;:]/g,' ').replace(/\s+/g,' ').trim();
-  const similarity=(a,b)=>{a=norm(a);b=norm(b);if(!a||!b)return 0;if(a===b)return 1;if(a.includes(b)||b.includes(a))return Math.min(a.length,b.length)/Math.max(a.length,b.length);const m=a.length,n=b.length;if(!m||!n)return 0;let prev=Array.from({length:n+1},(_,i)=>i),cur=[];for(let i=1;i<=m;i++){cur=[i];for(let j=1;j<=n;j++)cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur;}return 1-prev[n]/Math.max(m,n)};
-  const matches=(text,words,index)=>{const t=norm(text);if(t===String(index+1))return true;return words.some(w=>{const k=norm(w);if(!k)return false;if(t===k||t.includes(k)||k.includes(t)&&t.length>=3)return true;const ta=t.split(' '),ka=k.split(' ');return Math.max(similarity(t,k),...ta.map(x=>Math.max(...ka.map(y=>similarity(x,y)))))>=0.75})};
-  const flow=b.flow&&typeof b.flow==='object'&&b.flow.nodes&&typeof b.flow.nodes==='object'?b.flow:null;
-  let automatic=null;
-  if(flow){
-    const stateKey='chat-flow-'+session;
-    let state=await st.get(stateKey,{type:'json'}).catch(()=>null);
-    const nodes=flow.nodes,makeReply=(msg,node)=>{const choices=node&&Array.isArray(node.options)&&node.options.length?'\n\n'+node.options.map((o,i)=>(i+1)+'. '+o.label).join('\n')+'\n\nPuedes escribir la opción o responder con tus propias palabras.':'';automatic={id:crypto.randomUUID(),session,name:'TECNO ESPACIOS',message:clean(msg+choices,1800),from:'admin',at:new Date().toISOString(),read:true,automatic:true};all.push(automatic)};
-    if(!state||!state.node||!nodes[state.node]){
-      state={node:flow.start||'inicio',done:false};
-      const first=nodes[state.node],initialText=norm(message);
-      const direct=first&&Array.isArray(first.options)?first.options.find((o,i)=>{
-        const words=[o.label,...(Array.isArray(o.keywords)?o.keywords:[])];
-        return matches(initialText,words,i);
-      }):null;
-      if(direct&&nodes[direct.next]){state.node=direct.next;const target=nodes[state.node];makeReply(target.message,target);if(target.end)state.done=true}
-      else if(first)makeReply(first.message,first);
-    }else if(!state.done){
-      const current=nodes[state.node],text=norm(message);
-      let chosen=null;
-      if(current&&Array.isArray(current.options)){
-        chosen=current.options.find((o,i)=>{
-          const words=[o.label,...(Array.isArray(o.keywords)?o.keywords:[])];
-          return matches(text,words,i);
-        });
-      }
-      let next=null;
-      if(current&&current.any)next=current.next;
-      else if(chosen)next=chosen.next;
-      if(next&&nodes[next]){
-        state.node=next;const target=nodes[next];makeReply(target.message,target);if(target.end)state.done=true;
-      }else{
-        makeReply((current&&current.fallback)||'No alcancé a entenderte. ¿Puedes elegir una de las opciones o explicarlo de otra manera?');
-      }
+  if(automatic)all.push(automatic);
+  await st.setJSON('chat-mensajes',all.slice(-MAX));
+
+  if(phone||automatic?.handoff){
+   try{
+    if(phone)await upsertCliente(st,{nombre:name,telefono:phone,origen:'chat',sesion:session,evento:'Contacto desde el chat'});
+    const contacts=(await st.get('contacto-mensajes',{type:'json'}))||[];
+    const existing=contacts.find(x=>x.origen==='chat'&&x.sesion===session);
+    if(existing){
+     if(phone)existing.telefono=phone;
+     if(name!=='Visitante')existing.nombre=name;
     }else{
-      makeReply('Tu solicitud ya quedó registrada en esta conversación. Si deseas agregar algo más, escríbelo y nuestro equipo lo revisará.');
+     contacts.push({id:crypto.randomUUID(),at:item.at,nombre:name,correo:'',telefono:phone,
+      asunto:'Chat en vivo',mensaje:message,origen:'chat',sesion:session,emailed:false});
     }
-    await st.setJSON(stateKey,state);
-  }else{
-    const rules=Array.isArray(b.rules)?b.rules.slice(0,50):[];
-    const normalized=norm(message);
-    const match=rules.find(r=>{const keyword=norm(r?.keyword);return keyword&&clean(r?.response,1000)&&normalized.includes(keyword)});
-    if(match){automatic={id:crypto.randomUUID(),session,name:'TECNO ESPACIOS',message:clean(match.response,1000),from:'admin',at:new Date().toISOString(),read:true,automatic:true};all.push(automatic)}
+    await st.setJSON('contacto-mensajes',contacts.slice(-500));
+   }catch(error){console.error('No se pudo guardar el contacto del chat',error)}
   }
-  await st.setJSON('chat-mensajes',all.slice(-MAX)); return J({ok:true,message:item,automatic});
+  return J({ok:true,message:item,automatic,...transcript([...history,item,...(automatic?[automatic]:[])])});
  }
- if(!admin)return J({e:'No autorizado'},401);
+ if(!await esAdmin(st,b.auth))return J({e:'No autorizado'},401);
  if(b.action==='list') return J({ok:true,messages:all.slice(-MAX)});
  if(b.action==='reply'){
   const session=clean(b.session,80),message=clean(b.message,1000); if(!session||!message)return J({e:'Respuesta vacía'},400);

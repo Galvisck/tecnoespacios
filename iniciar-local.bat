@@ -7,7 +7,16 @@ set PUERTO=8750
 rem Segundo puerto interno (el servidor de archivos de Netlify usa 3999 por defecto y a veces esta ocupado)
 set PUERTO2=8751
 where node >nul 2>nul || (echo Instala Node.js LTS desde https://nodejs.org y vuelve a abrir este archivo. & pause & exit /b 1)
-if not exist node_modules (echo Instalando dependencias, solo la primera vez... & call npm install)
+call npm ls --depth=0 >nul 2>nul
+if errorlevel 1 (
+    echo Instalando las dependencias de esta version...
+    call npm ci
+    if errorlevel 1 (
+        echo No se pudieron instalar las dependencias. Revisa la conexion y la version de Node.js.
+        pause
+        exit /b 1
+    )
+)
 echo.
 echo  Sitio local:  http://localhost:%PUERTO%
 echo  Panel admin:  http://localhost:%PUERTO%/#/admin

@@ -1,1 +1,1 @@
-{"name":"tecnoespacios","private":true,"dependencies":{"@netlify/blobs":"^8.1.0"}}
+{"name":"tecnoespacios","private":true,"dependencies":{"@netlify/blobs":"^8.1.0","netlify-blobs-condicional":"npm:@netlify/blobs@^10.7.13","pdf-lib":"^1.17.1"}}

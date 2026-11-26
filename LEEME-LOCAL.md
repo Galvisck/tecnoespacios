@@ -5,13 +5,13 @@ Instala Node.js LTS: https://nodejs.org
 
 ## Iniciar
 1. Descomprime el proyecto completo (la carpeta con `public` y `netlify`).
-2. Doble clic en `iniciar-local.bat` (la primera vez instala dependencias).
+2. Doble clic en `iniciar-local.bat` (instala dependencias si faltan o cambiaron).
 3. Abre http://localhost:8750  ·  Panel: http://localhost:8750/#/admin
 
-El sitio usa el puerto 8750 y un puerto interno 8751 (el 3999 que usa Netlify por defecto puede estar ocupado, por eso se cambió). Si también lo tienes ocupado, abre `iniciar-local.bat` y `detener-local.bat` con el Bloc de notas y cambia las líneas `set PUERTO=8750` y `set PUERTO2=8751` por otros números (por ejemplo 8760 y 8761), en ambos archivos.
+El sitio usa el puerto 8750 y un puerto interno 8751 (el 3999 que usa Netlify por defecto puede estar ocupado, por eso se cambió). Si también lo tienes ocupado, abre `iniciar-local.bat` con el Bloc de notas y cambia las líneas `set PUERTO=8750` y `set PUERTO2=8751` por otros números (por ejemplo 8760 y 8761).
 
 ## Detener y volver a iniciar
-Cierra la ventana negra, o doble clic en `detener-local.bat`. Para volver a ejecutar: `iniciar-local.bat`.
+Cierra la ventana del servidor o pulsa Ctrl+C. Para volver a ejecutarlo, abre `iniciar-local.bat`.
 
 ## Datos de prueba separados de producción
 El modo local guarda proyectos, productos, promociones, reseñas y chat en un almacén local de Netlify Blobs
@@ -20,14 +20,13 @@ Nada de lo que hagas aquí se publica solo.
 
 ## Publicar cambios aprobados (producción)
 1. Revisa todo en local.
-2. Sube SOLO el código: `git add public netlify netlify.toml package.json` y `git commit` / `git push`.
+2. Sube SOLO el código: `git add public netlify netlify.toml package.json package-lock.json iniciar-local.bat` y `git commit` / `git push`.
    No subas la carpeta `.netlify` ni `node_modules`.
 3. Netlify despliega solo desde GitHub. Revisa el sitio publicado.
-4. Los datos de producción (Blobs del sitio) no cambian al desplegar. Las funciones nuevas de esta versión
-   solo añaden campos opcionales a las promociones (vigente desde, precio anterior y promocional); no requieren migración.
+4. La facturación usa los datos de empresa guardados en el panel y almacena sus documentos por separado. Al publicar el código, Netlify vuelve a usar los datos del sitio de producción.
 5. Si algo falla: en Netlify > Deploys, "Publish deploy" sobre el despliegue anterior.
 
-Aviso: el modo local no se pudo probar en el entorno donde se preparó (sin internet); si `netlify dev` da error, copia el mensaje y lo corregimos.
+Si el servidor local se detiene, revisa el mensaje de la ventana antes de volver a abrir `iniciar-local.bat`.
 
 ## Correo del formulario de contacto (configuración externa pendiente)
 El formulario guarda cada mensaje (panel > Mensajes de contacto) y avisa por correo solo si está configurado el servicio Resend:

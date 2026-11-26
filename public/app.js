@@ -4,7 +4,7 @@ const FG={'Modernas':['Poppins','Montserrat','Inter','Roboto','Open Sans','Lato'
 const FN=Object.values(FG).flat(),SYS=FG['Del sistema'],ONE=['Righteous','Bebas Neue','Anton','Abril Fatface','Pacifico','Lobster','Great Vibes','Satisfy','DM Serif Display','Prata'];
 const PB=[['Madera oscuro',{bg:'#140d0a',sf:'#1f1511',ac:'#ffc48a',tx:'#f4eee6',fh:'Poppins',fb:'Poppins'}],['Blanco y madera',{bg:'#faf7f2',sf:'#ffffff',ac:'#a9683a',tx:'#2a1f18',fh:'Playfair Display',fb:'Lato'}],['Noche azul',{bg:'#0b1220',sf:'#131c2e',ac:'#7cc4ff',tx:'#eaf1fb',fh:'Montserrat',fb:'Inter'}],['Verde olivo',{bg:'#12150e',sf:'#1b2015',ac:'#b7c46a',tx:'#eef0e4',fh:'Oswald',fb:'Open Sans'}],['Negro y dorado',{bg:'#0d0d0d',sf:'#181818',ac:'#d4af37',tx:'#f5f1e6',fh:'Cinzel',fb:'Lato'}],['Minimal gris',{bg:'#f2f2f0',sf:'#ffffff',ac:'#2f2f2f',tx:'#1d1d1d',fh:'DM Sans',fb:'DM Sans'}],['Arena natural',{bg:'#f3eee5',sf:'#fffaf2',ac:'#b8895b',tx:'#35291f',fh:'Lora',fb:'Nunito'}],['Azul elegante',{bg:'#edf2f7',sf:'#ffffff',ac:'#315b82',tx:'#172b3d',fh:'Montserrat',fb:'Inter'}],['Terracota',{bg:'#f4e9e3',sf:'#fffaf7',ac:'#b65e45',tx:'#3a2923',fh:'Playfair Display',fb:'Lato'}],['Lavanda suave',{bg:'#f1eef7',sf:'#ffffff',ac:'#8065a8',tx:'#292338',fh:'Poppins',fb:'Nunito'}],['Verde bosque',{bg:'#101b17',sf:'#1a2922',ac:'#a6c49a',tx:'#edf4ed',fh:'Manrope',fb:'Inter'}],['Cobre moderno',{bg:'#211915',sf:'#30231e',ac:'#d68a62',tx:'#f8eee8',fh:'Oswald',fb:'Lato'}]];
 const pset=t=>{D.t={...D.t,...t};if(!FN.includes(D.t.fh))D.t.fh='Poppins';if(!FN.includes(D.t.fb))D.t.fb='Poppins'};
-let D,ed=null,shopEditingId=null,tab='emp',cat='',tm,adm=!!sessionStorage.te,cc='',qsub='',qxT=false,uid=Date.now();
+let D,ed=null,shopEditingId=null,tab='resumen',cat='',tm,adm=!!sessionStorage.te,cc='',qsub='',qxT=false,uid=Date.now();
 let RV=null,AR,RF={e:0,m:''},qs='';const RVU='/.netlify/functions/resenas',stars=n=>'★'.repeat(n)+'☆'.repeat(5-n),SEC=['mesones','colores'],GONE=['electro','herrajes'];
 function rr(v,a){return v>>>a|v<<32-a}
 function sha(s){s=unescape(encodeURIComponent(s));var m=Math,pw=m.pow,mx=pw(2,32),i,j,r='',w=[],al=s.length*8,h=[],k=[],pc=0,ic={};for(var c=2;pc<64;c++)if(!ic[c]){for(i=0;i<313;i+=c)ic[i]=c;h[pc]=pw(c,.5)*mx|0;k[pc++]=pw(c,1/3)*mx|0}
@@ -14,9 +14,9 @@ for(i=0;i<8;i++)for(j=3;j+1;j--){var b=h[i]>>j*8&255;r+=(b<16?'0':'')+b.toString
 const FNU='/.netlify/functions/datos', CHATU='/.netlify/functions/chat', SHOPU='/.netlify/functions/shop-cuenta';let AUTH=sessionStorage.te||'', SHOP_TOKEN=localStorage.te_shop_token||'', SHOP_USER=null, SHOP_FILTER='Todos', SHOP_QUERY='', SHOP_FAV=false, SHOP_CART=[];try{SHOP_CART=JSON.parse(localStorage.te_shop_cart||'[]')}catch{SHOP_CART=[]}
 const api=async(b,u=FNU)=>{try{const r=await fetch(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({auth:AUTH,...b})});if(r.status==404)return{ok:false,e:'Las funciones de Netlify no están activas (revisa el despliegue).'};const j=await r.json().catch(()=>({}));return{ok:r.ok,...j}}catch(e){return{ok:false,e:'Sin conexión con Netlify'}}};
 const stt=t=>{const e=q('#st');if(e)e.textContent=t};
-async function sv(){stt('Guardando…');const r=await api({data:D});stt(r.ok?'✓ Guardado':'⚠ '+(r.e||'No se pudo guardar'))}
+async function sv(){stt('Guardando…');const r=await api({data:D});stt(r.ok?'✓ Guardado':'⚠ '+(r.e||'No se pudo guardar'));return r.ok}
 const sd=()=>{clearTimeout(tm);stt('…');tm=setTimeout(sv,700)};
-const cap=()=>{['n','s','d','c','x','v','vi','pa','pp','ref'].forEach(k=>{const e=q('#f-'+k);if(e&&ed)ed[k]=e.value})};
+const cap=()=>{['n','s','d','c','x','v','vi','pa','pp','ref'].forEach(k=>{const e=q('#f-'+k);if(e&&ed)ed[k]=e.value});const stock=q('#f-disponible');if(stock&&ed)ed.disponible=stock.checked};
 const get=p=>p.split('.').reduce((o,k)=>o[k],D),set=(p,v)=>{const a=p.split('.'),l=a.pop();a.reduce((o,k)=>o[k],D)[l]=v};
 const today=()=>new Date().toISOString().slice(0,10),act=()=>D.items.filter(i=>i.k=='promos'&&(!i.v||i.v>=today())&&!(i.vi&&i.vi>today()));
 const seen=()=>JSON.parse(localStorage.te_seen||'[]');
@@ -99,10 +99,108 @@ await pool(L,4,async(o,j)=>{stt('Importando '+(j+1)+' de '+L.length+'…');addCa
 if(o.u){const r=await api({a:'fetch',url:o.u});it.img=[r.ok&&r.url?r.url:o.u];if(tab=='colores'&&!it.x)it.x=await avg(it.img[0])}
 if(tab=='colores'&&!it.x)it.x='#c9a77c';out[j]=it});await fin(out)}
 let aqs='';
-const ADM=[['Sitio',[['emp','Empresa'],['home','Portada'],['apa','Apariencia'],['arch','Tarjeta'],['footer','Pie de página']]],['Catálogo',[['proyectos','Proyectos'],['mesones','Mesones'],['colores','Colores'],['promos','Promociones']]],['Comercial',[['pzadmin','Personalizador y solicitudes'],['proyadmin','Seguimiento de proyectos'],['statsadmin','Estadísticas'],['crmadmin','CRM de clientes']]],['Tienda',[['shopadmin','Productos en venta']]],['Clientes',[['chatadmin','Chat en vivo'],['msgs','Mensajes'],['rev','Reseñas']]],['Cuenta',[['pub','Búsqueda de fotos'],['cta','Acceso']]]],ADMN=Object.fromEntries(ADM.flatMap(([,l])=>l)),CATT=['proyectos','mesones','colores','promos'];
+const ADM=[
+ ['comercial','Comercial',[['pzadmin','Personalizador y solicitudes'],['proyadmin','Seguimiento de proyectos'],['crmadmin','CRM de clientes'],['statsadmin','Estadísticas']]],
+ ['atencion','Atención al cliente',[['chatadmin','Chat en vivo'],['msgs','Mensajes'],['rev','Reseñas']]],
+ ['catalogo','Catálogo',[['proyectos','Galería de proyectos'],['mesones','Mesones'],['colores','Colores'],['promos','Promociones']]],
+ ['tienda','Tienda',[['shopadmin','Productos en venta']]],
+ ['sitio','Sitio web',[['home','Portada'],['emp','Empresa'],['apa','Apariencia'],['arch','Tarjeta de presentación'],['footer','Pie de página']]],
+ ['cuenta','Configuración',[['cta','Acceso al panel'],['pub','Búsqueda de fotos']]]
+];
+const ADMN={resumen:'Resumen',facturas:'Facturas y cotizaciones',...Object.fromEntries(ADM.flatMap(([, ,opciones])=>opciones))};
+const CATT=['proyectos','mesones','colores','promos'];
+const admOrdenBase=ADM.map(([id])=>id);
+let admOrden=admOrdenBase.slice(),admBusca='',admOrganiza=false,admMenuMovil=false;
+const admGruposAbiertos=new Map();
+try{
+ const saved=JSON.parse(localStorage.te_admin_menu_order||'[]');
+ if(Array.isArray(saved))admOrden=[...new Set([...saved.filter(id=>admOrdenBase.includes(id)),...admOrdenBase])];
+}catch{}
+
+function admGuardarOrden(){
+ localStorage.te_admin_menu_order=JSON.stringify(admOrden);
+}
+const admTexto=txt=>txt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+function admFiltrarMenu(){
+ const termino=admTexto(admBusca.trim());
+ let total=0;
+ const opcionFacturas=q('#admFacturas');
+ if(opcionFacturas){
+  opcionFacturas.hidden=Boolean(termino)&&!admTexto('Facturas facturación cotizaciones documento WhatsApp').includes(termino);
+  if(!opcionFacturas.hidden)total++;
+ }
+ for(const detalle of document.querySelectorAll('[data-adm-grupo]')){
+  const [id,titulo,opciones]=ADM.find(([key])=>key===detalle.dataset.admGrupo);
+  const coincideGrupo=admTexto(titulo).includes(termino);
+  let cantidad=0;
+  for(const boton of detalle.querySelectorAll('[data-tab]')){
+   boton.hidden=Boolean(termino)&&!coincideGrupo&&!admTexto(boton.textContent).includes(termino);
+   if(!boton.hidden)cantidad++;
+  }
+  detalle.parentElement.hidden=cantidad===0&&!admOrganiza;
+  detalle.open=termino?cantidad>0:(admGruposAbiertos.get(id)??(opciones.some(([key])=>key===tab)||(id==='comercial'&&tab==='resumen')));
+  total+=cantidad;
+ }
+ const vacio=q('#admNavEmpty');
+ if(vacio)vacio.hidden=total>0;
+}
+
+function admResumen(){
+ const accesos=[
+  ['facturas','Facturas y cotizaciones','Genera el PDF y envíalo junto con tu tarjeta por WhatsApp.'],
+  ['pzadmin','Solicitudes del personalizador','Revisa las configuraciones y envía cotizaciones.'],
+  ['chatadmin','Chat en vivo','Responde a los clientes que piden un asesor.'],
+  ['crmadmin','Clientes','Consulta el historial y las oportunidades de venta.'],
+  ['proyadmin','Seguimiento de proyectos','Actualiza avances y comparte el estado con tus clientes.'],
+  ['mesones','Mesones','Controla los acabados disponibles en el personalizador.'],
+  ['colores','Colores','Administra las muestras de color del catálogo.']
+ ];
+ return `<div class="adm-overview">${accesos.map(([key,titulo,descripcion])=>
+  `<button class="adm-access" data-tab="${key}" type="button"><b>${titulo}</b><span>${descripcion}</span><span class="adm-access-arrow" aria-hidden="true">→</span></button>`
+ ).join('')}</div>`;
+}
+
+function admMarcarTab(key){
+ return tab===key?' class="on" aria-current="page"':'';
+}
+function admShell(contenido){
+ const seccion=ADM.find(([, ,opciones])=>opciones.some(([key])=>key===tab))?.[1];
+ const menu=admOrden.map((id,i)=>{
+  const [,nombre,botones]=ADM.find(([key])=>key===id);
+  return `<div class="adm-menu-group"><details data-adm-grupo="${id}">
+   <summary>${nombre}</summary><div class="adm-menu-links">${botones.map(([key,label])=>
+    `<button type="button" data-tab="${key}"${admMarcarTab(key)}>${label}</button>`).join('')}</div></details>
+   ${admOrganiza?`<div class="adm-menu-moves">
+    <button type="button" data-adm-move="-1" data-adm-key="${id}" aria-label="Subir ${nombre}" ${i===0?'disabled':''}>↑</button>
+    <button type="button" data-adm-move="1" data-adm-key="${id}" aria-label="Bajar ${nombre}" ${i===admOrden.length-1?'disabled':''}>↓</button>
+   </div>`:''}</div>`;
+ }).join('');
+ return `<div class="admin-workspace">
+  <div class="admin-bar">
+   <div class="admin-brand"><b>Administración</b><span>${E(D.e.nombre)}</span></div>
+   <div class="admin-bar-actions"><a href="#/inicio">Ver sitio</a><button type="button" data-out>Cerrar sesión</button></div>
+  </div>
+  <div class="ad admin-layout">
+   <button class="admin-mobile-menu" type="button" data-adm-menu aria-controls="adminNavigation" aria-expanded="${admMenuMovil}">Menú del panel <span aria-hidden="true">${admMenuMovil?'−':'+'}</span></button>
+   <aside class="adm-nav admin-navigation" id="adminNavigation" data-expanded="${admMenuMovil}">
+    <label class="admin-nav-search">Buscar en el panel<input id="admNavSearch" type="search" value="${E(admBusca)}" placeholder="Ej. Mesones"></label>
+    <button type="button" data-tab="resumen"${admMarcarTab('resumen')}>Resumen</button>
+    <button id="admFacturas" type="button" data-tab="facturas"${admMarcarTab('facturas')}>Facturas y cotizaciones</button>
+    <div class="adm-menu-groups">${menu}</div>
+    <p id="admNavEmpty" hidden>No hay secciones que coincidan.</p>
+    <div class="adm-menu-tools"><button type="button" data-adm-organiza aria-pressed="${admOrganiza}">${admOrganiza?'Terminar de organizar':'Organizar menú'}</button>
+     ${admOrganiza?'<button type="button" data-adm-reset>Restaurar orden</button>':''}</div>
+   </aside>
+   <section class="adm-main" aria-labelledby="adminSectionTitle">
+    <div class="adm-top"><div>${seccion?`<p class="admin-section-label">${seccion}</p>`:''}<h2 id="adminSectionTitle" tabindex="-1">${ADMN[tab]}</h2></div><small id="st" role="status"></small></div>
+    ${contenido}
+   </section>
+  </div>
+ </div>`;
+}
 const thumb=i=>i.img&&i.img[0]?`<img src="${E(i.img[0])}" alt="">`:`<span style="background:${E(i.x||'#555')}"></span>`;
 const admItems=()=>{const k=tab,g=gk(),s=aqs.trim().toLowerCase(),l=so(k,D.items.filter(i=>i.k==k&&(!cc||i[g]==cc)&&(!s||[i.n,i[g]].join(' ').toLowerCase().includes(s))));
-return l.map(i=>`<article class="adm-item"><label class="adm-thumb" title="Cambiar foto">${thumb(i)}<input type="file" accept="image/*" data-rimg="${i.id}" hidden></label><div class="adm-item-body"><input data-ri="${i.id}" data-rk="n" value="${E(i.n)}" aria-label="Nombre"><input data-ri="${i.id}" data-rk="${g}" list="ql" value="${E(i[g])}" placeholder="Categoría" aria-label="Categoría">${k=='colores'?`<input type="color" data-ri="${i.id}" data-rk="x" value="${E(i.x||'#c9a77c')}" aria-label="Color">`:''}</div><div class="adm-item-act">${k=='proyectos'?`<label class="ck adm-feat"><input type="checkbox" data-featured="${i.id}" ${i.featured?'checked':''}> Destacado</label>`:''}<button class="b o sm" data-ed="${i.id}" type="button">Editar</button><button class="b o sm adm-del" data-del="${i.id}" type="button">Borrar</button></div></article>`).join('')||'<p class="adm-empty">Sin resultados.</p>'};
+return l.map(i=>`<article class="adm-item"><label class="adm-thumb" title="Cambiar foto">${thumb(i)}<input type="file" accept="image/*" data-rimg="${i.id}" hidden></label><div class="adm-item-body"><input data-ri="${i.id}" data-rk="n" value="${E(i.n)}" aria-label="Nombre"><input data-ri="${i.id}" data-rk="${g}" list="ql" value="${E(i[g])}" placeholder="Categoría" aria-label="Categoría">${k=='colores'?`<input type="color" data-ri="${i.id}" data-rk="x" value="${E(i.x||'#c9a77c')}" aria-label="Color">`:''}</div><div class="adm-item-act">${k=='proyectos'?`<label class="ck adm-feat"><input type="checkbox" data-featured="${i.id}" ${i.featured?'checked':''}> Destacado</label>`:''}<button class="b o sm" data-ed="${i.id}" type="button">Editar</button>${k==='mesones'?`<label class="ck adm-feat adm-stock"><input type="checkbox" data-meson-stock="${E(i.id)}" ${i.disponible!==false?'checked':''}> Disponible</label>`:''}<button class="b o sm adm-del" data-del="${i.id}" type="button">Borrar</button></div></article>`).join('')||'<p class="adm-empty">Sin resultados.</p>'};
 function catAdmin(){const k=tab,g=gk(),all=D.items.filter(i=>i.k==k),L=cats(k),cnt=c=>all.filter(i=>i[g]==c).length,sub=cc||qsub;
 const side=`<div class="cs"><h4>Categorías</h4><button class="${cc?'':'on'}" data-ac="" type="button">Todas <i>${all.length}</i></button>${L.map(c=>`<button class="${cc==c?'on':''}" data-ac="${E(c)}" type="button">${E(c)} <i>${cnt(c)}</i></button>`).join('')}<button class="nw" data-acn type="button">+ Nueva categoría</button>${cc?`<button class="nw" data-acr type="button">✎ Renombrar</button><button class="nw dg" data-acd type="button">🗑 Eliminar categoría</button>`:''}</div>`;
 const qa=`<div class="fm qa adm-wide"><h3>Añadir${cc?' a «'+E(cc)+'»':''}</h3><div class="qg"><label>Nombre<input id="qn" placeholder="ej. Roble Mallado" autocomplete="off"></label><label>${k=='proyectos'?'Tipo':'Categoría'}<input id="qs" list="ql" value="${E(sub)}" autocomplete="off"></label>${k=='colores'?`<label>Color<input type="color" id="qx" value="#c9a77c"></label>`:''}<label>Enlace de foto<input id="qu" placeholder="https://…" autocomplete="off"></label></div><datalist id="ql">${L.map(c=>`<option value="${E(c)}">`).join('')}</datalist><div class="adm-actions"><button class="b" data-qadd type="button">+ Añadir</button><label class="b o">📷 Subir fotos<input type="file" accept="image/*" multiple data-qf hidden></label><button class="b o" data-add type="button">Formulario completo</button></div><details><summary>📋 Pegar lista</summary><textarea id="bl" rows="6" placeholder="Roble Mallado | Vint-tend | https://… | #a67c52&#10;Nuez | Vint-tend&#10;Cedro | Essential | https://…"></textarea><button class="b o" data-bulk type="button">Importar lista</button></details></div>`;
@@ -117,10 +215,12 @@ function promoAdmin(){const l=D.items.filter(i=>i.k=='promos'),lb={activas:'Acti
 return`<div class="adm-head"><h3>Promociones <span class="count-pill">${l.length}</span></h3><button class="b" data-add type="button">+ Nueva promoción</button></div>${l.length?`<div class="adm-items">${l.map(i=>`<article class="adm-item"><div class="adm-thumb">${thumb(i)}</div><div class="adm-item-body"><b>${E(i.n)}</b><small>${E(i.s||'')}${i.s?' · ':''}${vig(i)}</small></div><div class="adm-item-act"><span class="adm-pill ${pst(i)}">${lb[pst(i)]}</span><button class="b o sm" data-ed="${i.id}" type="button">Editar</button><button class="b o sm adm-del" data-del="${i.id}" type="button">Borrar</button></div></article>`).join('')}</div>`:'<p class="adm-empty">Aún no hay promociones.</p>'}`}
 function admin(){
 if(!adm)return`<form id="lg" class="fm"><h2>Acceso privado</h2><input name="u" placeholder="Usuario" autocomplete="username"><input name="p" type="password" placeholder="Contraseña" autocomplete="current-password"><button class="b">Entrar</button><p id="er"></p></form>`;
-if(!ADMN[tab])tab='emp';
+if(!Object.hasOwn(ADMN,tab))tab='resumen';
 if(tab=='rev'&&AR===undefined){AR=null;arLoad()}
 let b='';
-if(ed&&CATT.includes(tab)){const k=tab;b=`<div class="fm"><h3>${ed.id?'Editar':'Nuevo'}</h3><label>Nombre<input id="f-n" value="${E(ed.n)}"></label><label>${k=='promos'?'Oferta (ej. 20% dto.)':'Subtítulo'}<input id="f-s" value="${E(ed.s)}"></label><label>Descripción<textarea id="f-d" rows="3">${E(ed.d)}</textarea></label>${k=='proyectos'?`<label>Tipo<select id="f-c">${D.cats.map(c=>`<option ${ed.c==c?'selected':''}>${E(c)}</option>`).join('')}</select></label>`:''}${k=='colores'||k=='mesones'?`<label>Código / referencia<input id="f-ref" maxlength="60" value="${E(ed.ref||'')}"></label>`:''}${k=='colores'?`<label>Color<input type="color" id="f-x" value="${ed.x||'#c9a77c'}"></label>`:''}${k=='promos'?`<label>Vigente desde (opcional)<input type="date" id="f-vi" value="${ed.vi||''}"></label><label>Vigente hasta<input type="date" id="f-v" value="${ed.v||''}"></label><label>Precio anterior (opcional)<input type="number" min="0" id="f-pa" value="${ed.pa||''}"></label><label>Precio promocional (opcional)<input type="number" min="0" id="f-pp" value="${ed.pp||''}"></label>`:''}<div class="th">${ed.img.map((m,i)=>`<div><img src="${m}"><button data-rm="${i}">×</button></div>`).join('')}</div><label>Fotos (desde tu equipo)<input type="file" accept="image/*" multiple data-im></label><label>Buscar imagen en internet<span class="sr"><input id="sq" placeholder="ej. roble mallado"><button class="b o" data-sr>🔍 Buscar</button></span></label><div class="th" id="sres"></div><label>…o pegar enlace de una imagen<span class="sr"><input id="su" placeholder="https://…"><button class="b o" data-url>Agregar</button></span></label><div><button class="b" data-save>Guardar</button><button class="b o" data-cancel>Cancelar</button></div></div>`}
+if(ed&&CATT.includes(tab)){const k=tab;b=`<div class="fm"><h3>${ed.id?'Editar':'Nuevo'}</h3><label>Nombre<input id="f-n" value="${E(ed.n)}"></label><label>${k=='promos'?'Oferta (ej. 20% dto.)':'Subtítulo'}<input id="f-s" value="${E(ed.s)}"></label><label>Descripción<textarea id="f-d" rows="3">${E(ed.d)}</textarea></label>${k=='proyectos'?`<label>Tipo<select id="f-c">${D.cats.map(c=>`<option ${ed.c==c?'selected':''}>${E(c)}</option>`).join('')}</select></label>`:''}${k=='colores'||k=='mesones'?`<label>Código / referencia<input id="f-ref" maxlength="60" value="${E(ed.ref||'')}"></label>`:''}${k==='colores'||k==='mesones'?`<label>${k==='mesones'?'Color de referencia':'Color'}<input type="color" id="f-x" value="${E(ed.x||(k==='mesones'?'#cfc9c0':'#c9a77c'))}"></label>`:''}${k==='mesones'?`<label class="ck"><input type="checkbox" id="f-disponible" ${ed.disponible!==false?'checked':''}> Disponible en el personalizador</label>`:''}${k=='promos'?`<label>Vigente desde (opcional)<input type="date" id="f-vi" value="${ed.vi||''}"></label><label>Vigente hasta<input type="date" id="f-v" value="${ed.v||''}"></label><label>Precio anterior (opcional)<input type="number" min="0" id="f-pa" value="${ed.pa||''}"></label><label>Precio promocional (opcional)<input type="number" min="0" id="f-pp" value="${ed.pp||''}"></label>`:''}<div class="th">${ed.img.map((m,i)=>`<div><img src="${m}"><button data-rm="${i}">×</button></div>`).join('')}</div><label>Fotos (desde tu equipo)<input type="file" accept="image/*" multiple data-im></label><label>Buscar imagen en internet<span class="sr"><input id="sq" placeholder="ej. roble mallado"><button class="b o" data-sr>🔍 Buscar</button></span></label><div class="th" id="sres"></div><label>…o pegar enlace de una imagen<span class="sr"><input id="su" placeholder="https://…"><button class="b o" data-url>Agregar</button></span></label><div><button class="b" data-save>Guardar</button><button class="b o" data-cancel>Cancelar</button></div></div>`}
+else if(tab=='resumen')b=admResumen();
+else if(tab==='facturas')b=TE_DOCS.view();
 else if(tab=='emp')b=empAdmin();
 else if(tab=='home')b=homeAdmin();
 else if(tab=='apa')b=`<div class="adm-cols"><div class="fm"><h3>Apariencias</h3><small>Predefinidas</small>${PB.map(([n,t],i)=>prw(n,t,`<button data-pb="${i}">Aplicar</button>`)).join('')}${D.pre.length?'<small>Mis apariencias</small>':''}${D.pre.map((x,i)=>prw(x.n,x.t,`<button data-pa="${i}">Aplicar</button><button data-pd="${i}">Borrar</button>`)).join('')}<span class="sr"><input id="pn" maxlength="40" placeholder="Nombre para guardar la actual"><button class="b o" data-ps>💾 Guardar</button></span></div><div class="fm"><h3>Personalizar</h3>${fl('Color de fondo','t.bg','color')}${fl('Color de tarjetas','t.sf','color')}${fl('Color de acento','t.ac','color')}${fl('Color del texto','t.tx','color')}${fsel('Letra de títulos','t.fh')}${fsel('Letra del texto','t.fb')}<label>Logo<input type="file" accept="image/*" data-logo></label></div></div>`;
@@ -135,12 +235,12 @@ else if(tab=='pub')b=`<div class="fm"><h3>Búsqueda de fotos</h3>${fl('Clave de 
 else if(tab=='promos')b=promoAdmin();
 else if(window.ADMNEG&&ADMNEG.tabs.includes(tab))b=ADMNEG.view(tab);
 else b=catAdmin();
-return`<div class="adm-top"><h2>Panel</h2><small id="st"></small></div><div class="ad"><aside class="adm-nav">${ADM.map(([t,l])=>`<h4>${t}</h4>${l.map(([k,v])=>`<button class="${tab==k?'on':''}" data-tab="${k}" type="button">${v}</button>`).join('')}`).join('')}<a class="adm-view" href="#/inicio">Ver sitio ↗</a><button class="adm-out" data-out type="button">Salir</button></aside><section class="adm-main">${b}</section></div>`}
+return admShell(b)}
 function render(){th();let p=(location.hash.replace('#/','')||location.pathname.replace(/^\//,'').replace(/\/$/,'')||'inicio');if(p==='configurador')p='inicio';q('#logo').src=D.logo;q('#nm').textContent=D.e.nombre;q('#ft').textContent=(D.footer&&D.footer.left)||('© '+new Date().getFullYear()+' '+D.e.nombre);const ft2=q('#ft2');if(ft2)ft2.textContent=(D.footer&&D.footer.right)||'Diseño de espacios · Mobiliario a medida';const fs=q('#footerSocial');if(fs)fs.innerHTML=[D.footer?.instagram&&/^https?:\/\//i.test(D.footer.instagram)?`<a href="${E(D.footer.instagram)}" target="_blank" rel="noopener">Instagram</a>`:'',D.footer?.facebook&&/^https?:\/\//i.test(D.footer.facebook)?`<a href="${E(D.footer.facebook)}" target="_blank" rel="noopener">Facebook</a>`:''].filter(Boolean).join('');
 const seo={personalizador:['Personaliza tu mueble | '+D.e.nombre,'Diseña tu cocina, closet o mueble de baño: elige colores, materiales y medidas y solicita tu cotización.'],seguimiento:['Seguimiento de proyectos | '+D.e.nombre,'Consulta el estado de tu proyecto con tu código de seguimiento.'],inicio:[D.e.nombre+' | Diseño y fabricación de muebles a medida','Diseño y fabricación de cocinas integrales, clósets, muebles de baño y mobiliario personalizado. Conoce los proyectos de '+D.e.nombre+'.'],proyectos:['Proyectos de muebles a medida | '+D.e.nombre,'Explora proyectos de cocinas, clósets y mobiliario personalizado desarrollados por '+D.e.nombre+'.'],colores:['Colores y acabados para muebles | '+D.e.nombre,'Conoce opciones de colores y acabados para personalizar tus muebles y proyectos.'],mesones:['Mesones para cocina | '+D.e.nombre,'Explora opciones de mesones y complementos para proyectos de cocina.'],promos:['Promociones | '+D.e.nombre,'Consulta las promociones y novedades de '+D.e.nombre+'.'],resenas:['Opiniones de clientes | '+D.e.nombre,'Conoce las experiencias y opiniones de clientes de '+D.e.nombre+'.'],contacto:['Contacto | '+D.e.nombre,'Comunícate con '+D.e.nombre+' para recibir asesoría sobre cocinas, clósets y muebles a medida.'],admin:['Administración | '+D.e.nombre,'']};
 seo.shop=['Productos disponibles | TECNO ESPACIOS','Conoce productos disponibles, precios y tiempos estimados de entrega. Consulta por WhatsApp.'];const meta=seo[p]||seo.inicio;document.title=meta[0];const canonical=document.querySelector('link[rel=canonical]');if(canonical)canonical.href=location.origin+(p==='shop'?'/shop':'/');const md=document.querySelector('meta[name="description"]');if(md&&meta[1])md.content=meta[1];
 q('#nav').innerHTML=P.filter(([k])=>!SEC.includes(k)||D.items.some(i=>i.k==k)).map(([k,v,ic])=>`<a href="${k=='shop'?'/shop':'#/'+k}" class="${p==k?'on':''}"><span>${ic}</span>${v}</a>`).join('');
-q('#app').innerHTML=p=='admin'?admin():view(P.some(x=>x[0]==p)?p:'inicio');bell();drawQR();if(window.NEGAFTER)NEGAFTER(p)}
+q('#app').innerHTML=p=='admin'?admin():view(P.some(x=>x[0]==p)?p:'inicio');document.body.classList.toggle('admin-page',p==='admin'&&adm);if(p==='admin'&&adm){admFiltrarMenu();if(tab==='facturas')TE_DOCS.activar()}bell();drawQR();if(window.NEGAFTER)NEGAFTER(p)}
 function bell(){const a=act(),n=a.filter(i=>!seen().includes(i.id)).length;q('#bd').textContent=n||'';q('#bell').classList.toggle('ring',n>0);q('#bell').style.display=a.length?'':'none';
 q('#dd').innerHTML=a.map(i=>`<p><a href="#/promos"><b>${E(i.n)}</b> ${E(i.s)}</a></p>`).join('')}
 const up=async f=>{const u=await rz(f),r=await api({a:'img',data:u});if(!r.ok){alert(r.e||'No se pudo subir la imagen');return''}return r.url};
@@ -183,42 +283,299 @@ function shopAdmin(){
  <div class="fm shop-cover-admin"><div class="section-kicker">PRESENTACIÓN DEL APARTADO</div><h3>Imagen y texto de portada</h3><label>Título<input id="shopHeroTitle" value="${E(hero.title||'TECNO SHOP')}"></label><label>Descripción<textarea id="shopHeroSubtitle" rows="2">${E(hero.subtitle||'Productos seleccionados para complementar tus espacios.')}</textarea></label><label>Cambiar imagen principal<input type="file" accept="image/*" data-shophero></label>${hero.image?`<img class="shop-hero-preview" src="${E(hero.image)}" alt="Portada actual"><button class="b o" data-shophero-remove>Quitar imagen</button>`:''}<button class="b" data-shophero-save>Guardar portada</button></div></div>`
 }const CHAT_TTL=30*60*1000;let ADMIN_CHAT=[],CHAT_LOADING=false,CHAT_LOADED=false,CHATV='act',CHAT_GONE=new Set(),CHAT_SIG='',CHAT_DRAFT={};
 async function loadAdminChat(force){if(CHAT_LOADING)return;CHAT_LOADING=true;try{const r=await fetch(CHATU,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({auth:AUTH,action:'list'})});const j=await r.json().catch(()=>({}));if(r.ok)ADMIN_CHAT=(j.messages||[]).filter(x=>!CHAT_GONE.has(x.id))}catch(e){}CHAT_LOADING=false;CHAT_LOADED=true;const last=ADMIN_CHAT[ADMIN_CHAT.length-1],sig=ADMIN_CHAT.length+':'+(last?last.id:'');if(force||sig!==CHAT_SIG){CHAT_SIG=sig;if(location.hash==='#/admin')render()}}
-const chatThreads=()=>{const by={};ADMIN_CHAT.forEach(x=>(by[x.session]=by[x.session]||[]).push(x));const now=Date.now();return Object.entries(by).map(([id,m])=>{const last=m[m.length-1];return{id,m,last,name:(m.find(x=>x.from==='visitor')||last).name||'Visitante',live:now-Date.parse(last.at)<CHAT_TTL}}).sort((a,b)=>Date.parse(b.last.at)-Date.parse(a.last.at))};
+const chatThreads=()=>{const by={};ADMIN_CHAT.forEach(x=>(by[x.session]=by[x.session]||[]).push(x));const now=Date.now();return Object.entries(by).map(([id,m])=>{const last=m[m.length-1];return{id,m,last,name:m.findLast(x=>x.from==='visitor'&&x.name&&x.name!=='Visitante')?.name||'Visitante',pending:m.some(x=>x.handoff)&&!m.some(x=>x.from==='admin'&&!x.automatic),live:now-Date.parse(last.at)<CHAT_TTL}}).sort((a,b)=>Date.parse(b.last.at)-Date.parse(a.last.at))};
 function chatAdmin(){if(!CHAT_LOADED&&!CHAT_LOADING)loadAdminChat();
 const th=chatThreads(),live=th.filter(x=>x.live),old=th.filter(x=>!x.live),hm=x=>new Date(x.at).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
-const card=t=>`<article class="adm-thread"><div class="adm-hd"><div><b>${E(t.name)}</b><small>${new Date(t.last.at).toLocaleString('es-CO')} · ${t.m.length} ${t.m.length==1?'mensaje':'mensajes'}</small></div><button class="b o sm adm-del" data-chatdel="${E(t.id)}" type="button">Eliminar</button></div><div class="adm-msgs">${t.m.map(x=>`<p class="chat-line ${x.from==='admin'?'mine':''}"><b>${x.from==='admin'?'TECNO ESPACIOS':E(x.name)}</b> <small>${hm(x)}</small><br>${E(x.message)}</p>`).join('')}</div>${t.live?`${(D.chatQuick||[]).length?`<div class="quick-row">${D.chatQuick.map(z=>`<button class="b o" data-chatquick="${E(z)}" data-session="${E(t.id)}" type="button">${E(z.slice(0,35))}</button>`).join('')}</div>`:''}<div class="adm-reply"><textarea id="cr-${E(t.id)}" data-chatdraft="${E(t.id)}" rows="2" placeholder="Escribe tu respuesta…">${E(CHAT_DRAFT[t.id]||'')}</textarea><button class="b sm" data-chatreply="${E(t.id)}" type="button">Enviar</button></div>`:''}</article>`;
+const card=t=>`<article class="adm-thread"><div class="adm-hd"><div><b>${E(t.name)}${t.pending?' · Solicita asesor':''}</b><small>${new Date(t.last.at).toLocaleString('es-CO')} · ${t.m.length} ${t.m.length==1?'mensaje':'mensajes'}</small></div><button class="b o sm adm-del" data-chatdel="${E(t.id)}" type="button">Eliminar</button></div><div class="adm-msgs">${t.m.map(x=>`<p class="chat-line ${x.from==='admin'?'mine':''}"><b>${x.from==='admin'?'TECNO ESPACIOS':E(x.name)}</b> <small>${hm(x)}</small><br>${E(x.message)}</p>`).join('')}</div>${t.live?`${(D.chatQuick||[]).length?`<div class="quick-row">${D.chatQuick.map(z=>`<button class="b o" data-chatquick="${E(z)}" data-session="${E(t.id)}" type="button">${E(z.slice(0,35))}</button>`).join('')}</div>`:''}<div class="adm-reply"><textarea id="cr-${E(t.id)}" data-chatdraft="${E(t.id)}" rows="2" placeholder="Escribe tu respuesta…">${E(CHAT_DRAFT[t.id]||'')}</textarea><button class="b sm" data-chatreply="${E(t.id)}" type="button">Enviar</button></div>`:''}</article>`;
 const seg=`<div class="seg"><button class="${CHATV=='act'?'on':''}" data-chatfilter="act" type="button">Activos <i>${live.length}</i></button><button class="${CHATV=='hist'?'on':''}" data-chatfilter="hist" type="button">Historial <i>${old.length}</i></button><button class="${CHATV=='cfg'?'on':''}" data-chatfilter="cfg" type="button">Respuestas</button></div>`;
 let body;
-if(CHATV=='cfg')body=`<div class="adm-cols"><div class="fm"><h3>Palabras clave sencillas</h3>${(D.chatRules||[]).map((r,i)=>`<div class="chat-rule"><label>Palabra o frase<input data-chat-rule-key="${i}" value="${E(r.keyword)}" placeholder="Ej. hola"></label><label>Respuesta<textarea data-chat-rule-response="${i}" rows="2" placeholder="Escribe la respuesta">${E(r.response)}</textarea></label><button class="b o sm adm-del" data-chat-rule-remove="${i}" type="button">Eliminar</button></div>`).join('')}<div><button class="b o" data-chat-rule-add type="button">+ Agregar palabra clave</button></div></div><div class="fm"><h3>Respuestas rápidas</h3><textarea rows="8" id="chatQuickEdit" placeholder="Una por línea">${E((D.chatQuick||[]).join('\n'))}</textarea><p class="muted">El asistente ramificado incluye más de 120 preguntas y caminos de conversación. Puedes ampliar o modificar sus rutas en el editor avanzado.</p></div></div><details class="fm" style="margin-top:16px"><summary><b>Editor avanzado de ramificaciones</b> · ${Object.keys((D.chatFlow||window.TE_CHAT_FLOW).nodes||{}).length} nodos</summary><p>Modifica el JSON para cambiar preguntas, opciones, palabras equivalentes y destinos. Cada opción debe apuntar al identificador de un nodo existente. Guarda al salir del campo.</p><textarea id="chatFlowEdit" rows="18" spellcheck="false" style="width:100%;font-family:monospace">${E(JSON.stringify(D.chatFlow||window.TE_CHAT_FLOW,null,2))}</textarea><small id="chatFlowStatus">El asistente usa esta estructura de conversación.</small></details>`;
+if(CHATV=='cfg')body=`<div class="adm-cols"><div class="fm"><h3>Palabras clave sencillas</h3>${(D.chatRules||[]).map((r,i)=>`<div class="chat-rule"><label>Palabra o frase<input data-chat-rule-key="${i}" value="${E(r.keyword)}" placeholder="Ej. hola"></label><label>Respuesta<textarea data-chat-rule-response="${i}" rows="2" placeholder="Escribe la respuesta">${E(r.response)}</textarea></label><button class="b o sm adm-del" data-chat-rule-remove="${i}" type="button">Eliminar</button></div>`).join('')}<div><button class="b o" data-chat-rule-add type="button">+ Agregar palabra clave</button></div></div><div class="fm"><h3>Respuestas rápidas</h3><textarea rows="8" id="chatQuickEdit" placeholder="Una por línea">${E((D.chatQuick||[]).join('\n'))}</textarea><p class="muted">Puedes añadir respuestas por palabra clave. El editor avanzado permite configurar rutas para consultas que el asistente no resuelve directamente.</p></div></div><details class="fm" style="margin-top:16px"><summary><b>Editor avanzado de ramificaciones</b> · ${Object.keys((D.chatFlow||window.TE_CHAT_FLOW).nodes||{}).length} nodos</summary><p>Modifica el JSON para cambiar preguntas, opciones, palabras equivalentes y destinos. Cada opción debe apuntar al identificador de un nodo existente. Guarda al salir del campo.</p><textarea id="chatFlowEdit" rows="18" spellcheck="false" style="width:100%;font-family:monospace">${E(JSON.stringify(D.chatFlow||window.TE_CHAT_FLOW,null,2))}</textarea><small id="chatFlowStatus">El asistente usa esta estructura de conversación.</small></details>`;
 else{const l=CHATV=='hist'?old:live;body=l.length?l.map(card).join(''):`<p class="adm-empty">${CHATV=='hist'?'El historial está vacío.':'No hay chats activos.'}</p>`}
 return`<div class="adm-head"><h3>Chat en vivo</h3><button class="b o sm" data-chatrefresh type="button">Actualizar</button></div>${seg}${body}`}
 function mountChatWidget(){
  if(q('#liveChat'))return;
- const WEL='<p class="chat-welcome">¡Hola! Cuéntanos cómo podemos ayudarte.</p>',newS=()=>'chat-'+Math.random().toString(36).slice(2)+Date.now();
- const w=document.createElement('div');w.id='liveChat';
- w.innerHTML=`<button class="chat-launch" id="chatLaunch" aria-label="Abrir chat" title="¿Tienes preguntas?"><span class="chat-bubble-icon">☏</span></button><section class="chat-box" id="chatBox" hidden><header id="chatDragHandle"><b>TECNO ESPACIOS · Atención al cliente</b><button id="chatClose" aria-label="Cerrar chat">×</button></header><div class="chat-messages" id="chatMessages">${WEL}</div><form id="liveChatForm"><div class="chat-contact-fields" id="chatContactFields"><input id="liveChatName" placeholder="Tu nombre" maxlength="80" autocomplete="name" required><input id="liveChatPhone" type="tel" placeholder="Tu número de WhatsApp (opcional)" maxlength="30" autocomplete="tel"></div><textarea id="liveChatText" rows="2" placeholder="Escribe tu pregunta…" maxlength="1000" required></textarea><button class="b" id="chatSendBtn">Enviar mensaje</button></form></section>`;document.body.append(w);
- let session=localStorage.te_chat_session;if(!session){session=newS();localStorage.te_chat_session=session}
- const box=q('#chatBox'),nameEl=q('#liveChatName'),phoneEl=q('#liveChatPhone'),fields=q('#chatContactFields'),textEl=q('#liveChatText');
- nameEl.value=localStorage.te_chat_name||'';phoneEl.value=localStorage.te_chat_phone||'';
- // Nombre y número quedan guardados en el navegador mientras se escriben.
- nameEl.addEventListener('input',()=>{localStorage.te_chat_name=nameEl.value.trim()});phoneEl.addEventListener('input',()=>{localStorage.te_chat_phone=phoneEl.value.trim()});
- let sentCount=Number(localStorage.te_chat_sent_count||0);
- const syncContactFields=()=>{if(sentCount>=1){fields.hidden=true;nameEl.required=false;textEl.placeholder='Escribe tu mensaje…'}else{fields.hidden=false;nameEl.required=true;nameEl.value=localStorage.te_chat_name||nameEl.value;phoneEl.value=localStorage.te_chat_phone||phoneEl.value;textEl.placeholder='Escribe tu pregunta…'}};
- syncContactFields();
- const fresh=()=>{session=newS();localStorage.te_chat_session=session;localStorage.removeItem('te_chat_last');localStorage.te_chat_sent_count='0';sentCount=0;q('#chatMessages').innerHTML=WEL;textEl.value='';syncContactFields()};
- q('#chatLaunch').onclick=()=>{if(w.dataset.dragged==='1'){w.dataset.dragged='0';return}box.hidden=!box.hidden;fresh();if(!box.hidden)setTimeout(()=>(nameEl.value?textEl:nameEl).focus(),50)};q('#chatClose').onclick=()=>{box.hidden=true;fresh()};
- // Cada vez que se abre o se cierra la ventana, la conversación termina y empieza un chat nuevo.
- // Permite mover tanto la burbuja como la ventana desde su encabezado.
- let drag=null;const beginDrag=(ev,handle)=>{if(ev.target.closest('button'))return;const wr=w.getBoundingClientRect(),br=box.getBoundingClientRect();drag={x:ev.clientX,y:ev.clientY,left:handle===launcher?wr.left:br.left,top:handle===launcher?wr.top:br.top,moved:false,mode:handle===launcher?'launcher':'window'};handle.setPointerCapture?.(ev.pointerId)};
- const moveDrag=ev=>{if(!drag)return;const dx=ev.clientX-drag.x,dy=ev.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>6)drag.moved=true;if(drag.moved){if(drag.mode==='window'){const br=box.getBoundingClientRect(),x=Math.max(8,Math.min(innerWidth-br.width-8,drag.left+dx)),y=Math.max(8,Math.min(innerHeight-br.height-8,drag.top+dy));box.style.left=x+'px';box.style.top=y+'px';box.style.right='auto';box.style.bottom='auto';box.style.transform='none'}else{const wr=w.getBoundingClientRect(),x=Math.max(8,Math.min(innerWidth-wr.width-8,drag.left+dx)),y=Math.max(8,Math.min(innerHeight-wr.height-8,drag.top+dy));w.style.left=x+'px';w.style.top=y+'px';w.style.right='auto';w.style.bottom='auto';w.style.transform='none'}}};
- const endDrag=()=>{if(drag?.moved)w.dataset.dragged='1';drag=null};
- const launcher=q('#chatLaunch'),handle=q('#chatDragHandle');launcher.addEventListener('pointerdown',ev=>beginDrag(ev,launcher));handle.addEventListener('pointerdown',ev=>beginDrag(ev,handle));[launcher,handle].forEach(el=>{el.addEventListener('pointermove',moveDrag);el.addEventListener('pointerup',endDrag);el.addEventListener('pointercancel',endDrag)});
- async function refreshVisitorChat(){const sid=session;try{const r=await fetch(CHATU,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'visitor-list',session:sid})});const j=await r.json();if(sid!==session||box.hidden)return;if(j.expired){fresh();return}if(j.messages?.length){localStorage.te_chat_last=Date.parse(j.messages[j.messages.length-1].at);const m=q('#chatMessages');m.innerHTML=j.messages.map(x=>`<p class="chat-line ${x.from==='admin'?'mine':''}"><b>${x.from==='admin'?'TECNO ESPACIOS':'Tú'}:</b> ${E(x.message)}</p>`).join('');m.scrollTop=m.scrollHeight;sentCount=j.messages.filter(x=>x.from==='visitor').length;localStorage.te_chat_sent_count=String(sentCount);syncContactFields()}}catch(e){}}
- q('#liveChatForm').onsubmit=async ev=>{ev.preventDefault();const name=(nameEl.value||localStorage.te_chat_name||'').trim(),phone=(phoneEl.value||localStorage.te_chat_phone||'').trim(),message=textEl.value.trim();if(!message)return;if(name.length<2){alert('Por favor, ingresa tu nombre.');nameEl.focus();return}if(phone&&phone.replace(/\D/g,'').length<7){alert('El número de WhatsApp no parece válido. Corrígelo o déjalo vacío (es opcional).');phoneEl.focus();return}localStorage.te_chat_name=name;localStorage.te_chat_phone=phone;const btn=q('#chatSendBtn');btn.disabled=true;try{const r=await fetch(CHATU,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'send',name:name||localStorage.te_chat_name,phone:phone||localStorage.te_chat_phone,message,session,flow:(D.chatFlow||window.TE_CHAT_FLOW),rules:(D.chatRules||[]).filter(x=>x.keyword&&x.response)})});if(r.ok){textEl.value='';sentCount++;localStorage.te_chat_sent_count=String(sentCount);syncContactFields();localStorage.te_chat_last=Date.now();await refreshVisitorChat()}else alert('No se pudo enviar. Intenta de nuevo.')}catch(e){alert('No hay conexión en este momento. Intenta de nuevo.')}finally{btn.disabled=false}};
- fresh();
- setInterval(()=>{if(!box.hidden&&!document.hidden&&sentCount>0)refreshVisitorChat()},4000)
+ const links={
+  personalizador:['#/personalizador','Abrir personalizador'],
+  proyectos:['#/proyectos','Ver proyectos'],
+  seguimiento:['#/seguimiento','Consultar seguimiento'],
+  contacto:['#/contacto','Ver contacto']
+ };
+ const w=document.createElement('div');
+ w.id='liveChat';
+ w.innerHTML=`
+  <button class="chat-launch" id="chatLaunch" type="button" aria-label="Abrir chat"
+   aria-controls="chatBox" aria-expanded="false" title="Arrastra para mover el botón del chat" aria-description="Arrastra o usa las flechas para mover el botón. Inicio restaura la posición."><span class="chat-bubble-icon" aria-hidden="true">☏</span></button>
+  <section class="chat-box" id="chatBox" aria-label="Asistente de TECNO ESPACIOS" hidden>
+   <header id="chatHandle"><button id="chatMove" type="button" aria-label="Mover ventana del chat" title="Arrastra para mover la ventana" aria-description="Arrastra la barra o usa las flechas. Inicio restaura la posición.">⠿</button>
+    <b>Asistente de TECNO ESPACIOS</b><button id="chatClose" type="button" aria-label="Cerrar chat">×</button></header>
+   <div class="chat-messages" id="chatMessages" role="log" aria-label="Conversación"></div>
+   <div class="chat-actions" id="chatActions" aria-label="Consultas rápidas">
+    <button type="button" data-question="Quiero una cotización">Cotizar</button>
+    <button type="button" data-question="Quiero ver diseños y acabados">Ver diseños</button>
+    <button type="button" data-question="Quiero consultar el seguimiento">Seguimiento</button>
+    <button type="button" data-question="Quiero hablar con un asesor" data-intent="advisor">Hablar con un asesor</button>
+   </div>
+   <form id="liveChatForm">
+    <details id="chatContactFields" hidden>
+     <summary>Dejar mis datos para WhatsApp</summary>
+     <div class="chat-contact-fields">
+      <input id="liveChatName" aria-label="Tu nombre" placeholder="Tu nombre" maxlength="80" autocomplete="name">
+      <input id="liveChatPhone" aria-label="Tu número de WhatsApp" type="tel" placeholder="Tu número de WhatsApp" maxlength="30" autocomplete="tel">
+     </div>
+    </details>
+    <textarea id="liveChatText" aria-label="Tu mensaje" rows="2" placeholder="Escribe tu pregunta…" maxlength="1000"></textarea>
+    <p id="chatStatus" role="status" hidden></p>
+    <button class="b" id="chatSendBtn" type="submit">Enviar</button>
+   </form>
+  </section>`;
+ document.body.append(w);
+ let banner;
+ const updateOffset=()=>{
+  w.style.setProperty('--chat-offset',banner?(banner.offsetHeight+8)+'px':'0px');
+  recolocar();
+ };
+ const bannerSize=new ResizeObserver(updateOffset);
+ const watchBanner=()=>{
+  const next=q('#cb');
+  if(next===banner)return;
+  bannerSize.disconnect();
+  banner=next;
+  if(banner)bannerSize.observe(banner);
+  updateOffset();
+ };
+ new MutationObserver(watchBanner).observe(document.body,{childList:true});
+ const box=q('#chatBox'), launcher=q('#chatLaunch'), log=q('#chatMessages'), actions=q('#chatActions');
+ const contact=q('#chatContactFields'), nameEl=q('#liveChatName'), phoneEl=q('#liveChatPhone');
+ const textEl=q('#liveChatText'), button=q('#chatSendBtn'), status=q('#chatStatus');
+ const moveKey='te_chat_positions';
+ let posiciones={};
+ try{
+  const saved=JSON.parse(localStorage.getItem(moveKey)||'{}');
+  if(saved&&typeof saved==='object'&&!Array.isArray(saved))posiciones=saved;
+ }catch{}
+ const movibles={boton:w,ventana:box}, margen=8;
+ const limitar=(n,max)=>Math.min(max,Math.max(margen,n));
+ const limites=nodo=>{
+  const {width,height}=nodo.getBoundingClientRect();
+  const h=document.documentElement.clientHeight;
+  const bottom=banner?Math.min(h,banner.getBoundingClientRect().top-margen):h;
+  return {
+   x:Math.max(margen,document.documentElement.clientWidth-width-margen),
+   y:Math.max(margen,bottom-height-margen)
+  };
+ };
+ function colocar(nodo,x,y){
+  const max=limites(nodo);
+  const punto={x:Math.round(limitar(x,max.x)),y:Math.round(limitar(y,max.y))};
+  Object.assign(nodo.style,{left:punto.x+'px',top:punto.y+'px',right:'auto',bottom:'auto'});
+  return punto;
+ }
+ function recolocar(){
+  for(const [id,nodo] of Object.entries(movibles)){
+   if(nodo.hidden)continue;
+   const saved=posiciones[id];
+   if(Number.isFinite(saved?.x)&&Number.isFinite(saved?.y))colocar(nodo,saved.x,saved.y);
+  }
+ }
+ function guardarPosicion(id,punto){
+  if(punto)posiciones[id]=punto;
+  else delete posiciones[id];
+  localStorage.setItem(moveKey,JSON.stringify(posiciones));
+ }
+ function prepararMovimiento(id,nodo,handle,control,alTocar){
+  let inicio=null,punto=null,bloquearClick=false,ultimoToque=-Infinity;
+  handle.addEventListener('pointerdown',ev=>{
+   if(!ev.isPrimary||ev.button!==0||ev.target.closest('#chatClose'))return;
+   const rect=nodo.getBoundingClientRect();
+   bloquearClick=false;
+   inicio={pointer:ev.pointerId,x:ev.clientX,y:ev.clientY,left:rect.left,top:rect.top};
+   punto=null;
+  });
+  window.addEventListener('pointermove',ev=>{
+   if(!inicio||inicio.pointer!==ev.pointerId)return;
+   const x=ev.clientX-inicio.x,y=ev.clientY-inicio.y;
+   if(!punto&&Math.hypot(x,y)<6)return;
+   ev.preventDefault();
+   if(!punto)handle.setPointerCapture(ev.pointerId);
+   punto=colocar(nodo,inicio.left+x,inicio.top+y);
+   nodo.dataset.moving='true';
+  },{passive:false});
+  const terminar=ev=>{
+   if(!inicio||inicio.pointer!==ev.pointerId)return;
+   if(punto){
+    guardarPosicion(id,punto);
+    delete nodo.dataset.moving;
+    bloquearClick=true;
+   }else if(alTocar&&ev.type==='pointerup'&&ev.pointerType==='touch'){
+    const rect=handle.getBoundingClientRect();
+    if(ev.clientX>=rect.left&&ev.clientX<=rect.right&&ev.clientY>=rect.top&&ev.clientY<=rect.bottom){
+     ultimoToque=performance.now();
+     alTocar();
+    }
+   }
+   inicio=null;punto=null;
+  };
+  window.addEventListener('pointerup',terminar);
+  window.addEventListener('pointercancel',terminar);
+  handle.addEventListener('click',ev=>{
+   const duplicado=ev.detail>0&&(!ev.pointerType||ev.pointerType==='touch')&&performance.now()-ultimoToque<500;
+   if(ev.detail===0||(!bloquearClick&&!duplicado))return;
+   bloquearClick=false;
+   ev.preventDefault();ev.stopImmediatePropagation();
+  },true);
+  control.addEventListener('keydown',ev=>{
+   const direcciones={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+   const d=direcciones[ev.key];
+   if(ev.key==='Home'){
+    ev.preventDefault();
+    for(const propiedad of ['left','top','right','bottom'])nodo.style.removeProperty(propiedad);
+    guardarPosicion(id,null);
+   }else if(d){
+    ev.preventDefault();
+    const rect=nodo.getBoundingClientRect(),paso=ev.shiftKey?40:16;
+    guardarPosicion(id,colocar(nodo,rect.left+d[0]*paso,rect.top+d[1]*paso));
+   }
+  });
+ }
+ const barra=q('#chatHandle'),controlMover=q('#chatMove');
+ prepararMovimiento('boton',w,launcher,launcher,()=>setOpen(box.hidden));
+ prepararMovimiento('ventana',box,barra,controlMover);
+ addEventListener('resize',recolocar);
+ watchBanner();
+ recolocar();
+ const createSession=()=>localStorage.te_chat_session='chat-'+crypto.randomUUID();
+ let session=localStorage.te_chat_session||createSession();
+ let hasHistory=Boolean(localStorage.te_chat_last), busy=false, reading=false, signature='', pending=null, revision=0;
+ const showStatus=message=>{status.textContent=message;status.hidden=!message};
+ const renderMessages=(messages,handoff=false)=>{
+  const next=handoff+':'+messages.map(item=>item.id).join(',');
+  if(next===signature&&log.childNodes.length)return;
+  signature=next;
+  hasHistory=messages.length>0;
+  actions.hidden=handoff;
+  contact.hidden=!handoff;
+  log.innerHTML=messages.length?messages.map(item=>{
+   const shortcuts=(item.links||[]).filter(key=>Object.hasOwn(links,key)).map(key=>{
+    const [url,label]=links[key];
+    return `<a href="${url}">${label}</a>`;
+   }).join('');
+   const author=item.from==='visitor'?'Tú':item.automatic?'Asistente':'TECNO ESPACIOS';
+   return `<div class="chat-line ${item.from==='admin'?'mine':''}"><b>${author}</b><div>${E(item.message)}</div>${shortcuts?'<div class="chat-links">'+shortcuts+'</div>':''}</div>`;
+  }).join(''):'<p class="chat-welcome">¡Hola! Elige una opción o escribe tu pregunta.</p>';
+  log.scrollTop=log.scrollHeight;
+  if(hasHistory)localStorage.te_chat_last=messages.at(-1).at;
+  else localStorage.removeItem('te_chat_last');
+ };
+ const resetSession=()=>{session=createSession();pending=null;renderMessages([])};
+ async function callChat(body){
+  const response=await fetch(CHATU,{method:'POST',headers:{'content-type':'application/json'},
+   body:JSON.stringify(body),signal:AbortSignal.timeout(12000)});
+  const result=await response.json();
+  if(!response.ok&&!result.expired)throw new Error(result.e||'No se pudo enviar el mensaje.');
+  return result;
+ }
+ async function refresh(){
+  if(busy||reading||!hasHistory)return;
+  const sid=session, version=revision;
+  reading=true;
+  try{
+   const result=await callChat({action:'visitor-list',session:sid});
+   if(sid!==session||version!==revision||busy||box.hidden)return;
+   if(result.expired)resetSession();
+   else renderMessages(result.messages,result.handoff);
+  }catch{}finally{reading=false}
+ }
+ function setOpen(open){
+  box.hidden=!open;
+  launcher.setAttribute('aria-expanded',String(open));
+  if(open){
+   recolocar();
+   const firstControl=matchMedia('(pointer: coarse)').matches?q('#chatClose'):textEl;
+   firstControl.focus({preventScroll:true});
+   refresh();
+  }else launcher.focus({preventScroll:true});
+ }
+ launcher.onclick=()=>setOpen(box.hidden);
+ q('#chatClose').onclick=()=>setOpen(false);
+ box.addEventListener('keydown',event=>{if(event.key==='Escape')setOpen(false)});
+ log.addEventListener('click',event=>{if(event.target.closest('a'))setOpen(false)});
+ async function send(message,intent='',fromForm=false){
+  if(busy)return;
+  const name=fromForm&&!contact.hidden&&contact.open?nameEl.value.trim():'';
+  const phone=fromForm&&!contact.hidden&&contact.open?phoneEl.value.trim():'';
+  const validPhone=phone.replace(/\D/g,'').length>=7;
+  if((phone||name)&&!validPhone){showStatus('Revisa el número de WhatsApp.');phoneEl.focus();return}
+  if(!message&&!validPhone){showStatus('Escribe un mensaje.');textEl.focus();return}
+  const payload={action:'send',message:message||'Quiero que me contacten por WhatsApp.',name,phone,intent};
+  const key=JSON.stringify(payload);
+  if(pending?.key!==key)pending={key,id:crypto.randomUUID()};
+  const requestId=pending.id;
+  busy=true;
+  revision++;
+  button.disabled=true;
+  actions.querySelectorAll('button').forEach(item=>item.disabled=true);
+  showStatus('Enviando…');
+  try{
+   let result=await callChat({...payload,session,requestId});
+   if(result.expired){
+    resetSession();
+    // Preserve the requested handoff when an optional callback is submitted after expiration.
+    result=await callChat({...payload,session,requestId,intent:phone?'advisor':intent});
+   }
+   if(!result.ok)throw new Error('No se pudo enviar el mensaje.');
+   renderMessages(result.messages,result.handoff);
+   if(fromForm&&textEl.value.trim()===message)textEl.value='';
+   if(phone){phoneEl.value='';nameEl.value='';contact.open=false}
+   pending=null;
+   showStatus('');
+  }catch{
+   showStatus('No se pudo confirmar el envío. Intenta de nuevo.');
+  }finally{
+   busy=false;
+   button.disabled=false;
+   actions.querySelectorAll('button').forEach(item=>item.disabled=false);
+  }
+ }
+ actions.onclick=event=>{
+  const choice=event.target.closest('[data-question]');
+  if(choice)send(choice.dataset.question,choice.dataset.intent);
+ };
+ q('#liveChatForm').onsubmit=event=>{event.preventDefault();send(textEl.value.trim(),'',true)};
+ textEl.addEventListener('keydown',event=>{
+  if(event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();q('#liveChatForm').requestSubmit()}
+ });
+ log.innerHTML='<p class="chat-welcome">¡Hola! Elige una opción o escribe tu pregunta.</p>';
+ setInterval(()=>{if(!box.hidden&&!document.hidden)refresh()},8000);
 }
-setInterval(()=>{if(location.hash==='#/admin'&&tab==='chatadmin'&&document.activeElement!==q('#chatQuickEdit')&&!document.activeElement.closest('.chat-rule,.adm-reply'))loadAdminChat()},9000);
+setInterval(()=>{if(location.hash==='#/admin'&&tab==='chatadmin'&&document.activeElement!==q('#chatQuickEdit')&&!document.activeElement?.closest('.chat-rule,.adm-reply,#chatFlowEdit'))loadAdminChat()},9000);
+document.addEventListener('click',ev=>{
+ const boton=ev.target.closest('[data-adm-menu],[data-adm-organiza],[data-adm-reset],[data-adm-move]');
+ if(!boton)return;
+ if(Object.hasOwn(boton.dataset,'admMenu')){
+  admMenuMovil=!admMenuMovil;
+  boton.setAttribute('aria-expanded',String(admMenuMovil));
+  boton.querySelector('span').textContent=admMenuMovil?'−':'+';
+  q('#adminNavigation').dataset.expanded=String(admMenuMovil);
+  if(admMenuMovil)q('#admNavSearch').focus({preventScroll:true});
+  return;
+ }
+ if(Object.hasOwn(boton.dataset,'admOrganiza'))admOrganiza=!admOrganiza;
+ if(Object.hasOwn(boton.dataset,'admReset'))admOrden=admOrdenBase.slice();
+ const id=boton.dataset.admKey, paso=Number(boton.dataset.admMove);
+ if(id){
+  const i=admOrden.indexOf(id),destino=i+paso;
+  if(i<0||destino<0||destino>=admOrden.length)return;
+  [admOrden[i],admOrden[destino]]=[admOrden[destino],admOrden[i]];
+ }
+ admGuardarOrden();
+ render();
+ const mover=id&&[...document.querySelectorAll('[data-adm-move]')].find(el=>!el.disabled&&el.dataset.admKey===id&&Number(el.dataset.admMove)===paso);
+ (mover||q('[data-adm-organiza]'))?.focus({preventScroll:true});
+});
+document.addEventListener('click',ev=>{
+ const resumen=ev.target.closest('[data-adm-grupo] > summary');
+ if(resumen&&!admBusca.trim())admGruposAbiertos.set(resumen.parentElement.dataset.admGrupo,!resumen.parentElement.open);
+});
 document.addEventListener('click',async ev=>{const d=ev.target.closest('[data-chatdel],[data-msgs-refresh],[data-msg-del],[data-promo-tab],[data-shop-back],[data-scroll],[data-svc],[data-g],[data-shop-account],[data-shop-cart],[data-shop-cart-add],[data-shop-cart-qty],[data-shop-cart-remove],[data-shop-checkout],[data-shop-modal-close],[data-shop-auth-tab],[data-shop-favs],[data-shop-filter],[data-shop-fav],[data-shop-detail],[data-shop-support],[data-shop-logout],[data-shop-customer-refresh],[data-customer-purchase],[data-customer-coupon],[data-customer-message],[data-config-type],[data-config-model],[data-config-swatch],[data-config-quote],[data-shop-cancel-edit],[data-footer-save],[data-shophero-save],[data-shophero-remove],[data-homehero-remove],[data-flip],[data-cardzoom],[data-shopadd],[data-shopdel],[data-shopedit],[data-chatreply],[data-chatrefresh],[data-chatquick],[data-chat-rule-add],[data-chat-rule-remove],[data-buy],[data-sr],[data-url],[data-pick],[data-cat],[data-dl],[data-tab],[data-add],[data-ed],[data-del],[data-rm],[data-save],[data-cancel],[data-bell],[data-out],[data-pub],[data-reset],[data-cred],[data-rf],[data-pa],[data-pb],[data-pd],[data-ps],[data-menu],[data-rs],[data-rsend],[data-rok],[data-rdel],[data-ac],[data-acn],[data-acr],[data-acd],[data-feat],[data-chatfilter],[data-qadd],[data-bulk]'),dd=q('#dd');if(!d){dd.hidden=true;return}const s=d.dataset;
 if('chatdel'in s){if(!confirm('¿Eliminar esta conversación? No se puede deshacer.'))return;const ids=ADMIN_CHAT.filter(x=>x.session===s.chatdel).map(x=>x.id);let r,j={};try{r=await fetch(CHATU,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({auth:AUTH,action:'delete',session:s.chatdel})});j=await r.json().catch(()=>({}))}catch(e){r=null}if(r&&r.ok&&j.ok){ids.forEach(id=>CHAT_GONE.add(id));ADMIN_CHAT=ADMIN_CHAT.filter(x=>x.session!==s.chatdel);delete CHAT_DRAFT[s.chatdel];render()}else alert(j.e||'No se pudo eliminar la conversación. Intenta de nuevo.');return}
 if('chatfilter'in s){CHATV=s.chatfilter;render();return}
@@ -280,7 +637,16 @@ else if('acn'in s){const n=(prompt('Nombre de la nueva categoría')||'').trim();
 else if('acr'in s){const n=(prompt('Nuevo nombre para «'+cc+'»',cc)||'').trim();if(n&&n!=cc){const g=gk();D.items.forEach(i=>{if(i.k==tab&&i[g]==cc)i[g]=n});if(tab=='proyectos')D.cats=D.cats.map(c=>c==cc?n:c);cc=n;await sv();render()}}
 else if('qadd'in s)qadd([])
 else if('bulk'in s)qbulk()
-else if('tab'in s){tab=s.tab;ed=null;cc='';aqs='';qxT=false;if(tab=='rev')AR=undefined;render()}
+else if('tab'in s){
+ if(!Object.hasOwn(ADMN,s.tab))return;
+ tab=s.tab;ed=null;cc='';aqs='';qxT=false;admBusca='';admMenuMovil=false;
+ const group=ADM.find(([, ,opts])=>opts.some(([key])=>key===tab));
+ if(group)admGruposAbiertos.set(group[0],true);
+ if(tab==='rev')AR=undefined;
+ render();
+ q('#adminSectionTitle')?.focus({preventScroll:true});
+ scrollTo(0,0);
+}
 else if('add'in s){ed={id:0,k:tab,n:'',s:tab=='proyectos'?'':cc,d:'',c:tab=='proyectos'?(cc||D.cats[0]):'',x:'',v:'',img:[]};render()}
 else if('ed'in s){ed=JSON.parse(JSON.stringify(D.items.find(x=>x.id==s.ed)));render()}
 else if('del'in s){if(confirm('¿Borrar?')){D.items=D.items.filter(x=>x.id!=s.del);await sv();render()}}
@@ -298,19 +664,29 @@ else if('rok'in s){const x=AR.find(y=>y.id==s.rok),r=await api({a:'aprobar',id:s
 else if('rdel'in s){if(confirm('¿Borrar esta reseña?')){const r=await api({a:'borrar',id:s.rdel},RVU);if(r.ok){await arLoad();rvLoad()}else alert(r.e||'Error')}}
 else if('cancel'in s){ed=null;render()}
 else if('save'in s){cap();const g=i=>(q('#f-'+i)||{}).value||'';if(!g('n').trim())return alert('Escribe un nombre');Object.assign(ed,{n:g('n').trim(),s:g('s'),d:g('d'),c:g('c'),x:g('x'),v:g('v'),ref:g('ref')});if(ed.id)D.items[D.items.findIndex(x=>x.id==ed.id)]=ed;else{ed.id=Date.now();D.items.push(ed)}ed=null;await sv();render()}
-else if('out'in s){adm=false;AUTH='';sessionStorage.te='';location.hash='#/inicio'}
+else if('out'in s){TE_DOCS.salir();adm=false;AUTH='';sessionStorage.te='';location.hash='#/inicio'}
 else if('rf'in s){delete D.f[s.rf];await sv();render()}
 else if('cred'in s){const u=q('#nu').value.trim().toLowerCase(),p=q('#np').value;if(!u||p.length<6)return alert('Usuario y contraseña (mín. 6)');const n=sha(u+':'+p),r=await api({newCred:n});if(!r.ok)return alert(r.e||'Error');AUTH=n;sessionStorage.te=n;alert('Acceso actualizado.')}
 else if('pub'in s)dl(URL.createObjectURL(new Blob(['window.TE_DATA='+JSON.stringify(D)+';'],{type:'text/javascript'})),'datos.js');
 else if('reset'in s){if(confirm('Se borrarán los cambios hechos en este navegador.')){try{indexedDB.deleteDatabase('te')}catch(e){}setTimeout(()=>location.reload(),300)}}});
-document.addEventListener('input',ev=>{const t=ev.target;if(t.dataset.p){set(t.dataset.p,t.value);th();sd()}else if('cats'in t.dataset){D.cats=t.value.split('\n').map(x=>x.trim()).filter(Boolean);sd()}
+document.addEventListener('input',ev=>{const t=ev.target;if(t.id==='admNavSearch'){admBusca=t.value;admFiltrarMenu();return}if(t.dataset.p){set(t.dataset.p,t.value);th();sd()}else if('cats'in t.dataset){D.cats=t.value.split('\n').map(x=>x.trim()).filter(Boolean);sd()}
 else if('rva'in t.dataset){D.rvAuto=t.checked;sd()}
 else if(t.dataset.ri){const i=D.items.find(x=>x.id==t.dataset.ri);if(i){i[t.dataset.rk]=t.value;sd()}}
 else if(t.dataset.chatRuleKey!==undefined){D.chatRules[+t.dataset.chatRuleKey].keyword=t.value;sd()}else if(t.dataset.chatRuleResponse!==undefined){D.chatRules[+t.dataset.chatRuleResponse].response=t.value;sd()}else if(t.id=='chatQuickEdit'){D.chatQuick=t.value.split('\n').map(x=>x.trim()).filter(Boolean);sd()}else if(t.id=='shopSearch'){SHOP_QUERY=t.value;const pos=t.selectionStart;render();const inp=q('#shopSearch');if(inp){inp.focus();inp.setSelectionRange(pos,pos)}}else if(t.id=='qs')qsub=t.value;
 else if(t.id=='qx')qxT=true;else if('configColor' in t.dataset){CONFIG.color=t.value;const d=q('#configDrawing');if(d)d.innerHTML=configuradorSVG();const cap=q('.config-preview-caption span');if(cap)cap.textContent='Color seleccionado: '+CONFIG.color.toUpperCase();}
 else if(t.id=='aq'){aqs=t.value;const l=q('#adm-list');if(l)l.innerHTML=admItems()}else if(t.dataset.chatdraft!==undefined){CHAT_DRAFT[t.dataset.chatdraft]=t.value}
 else if(t.id=='bq'){qs=t.value;q('#gr').innerHTML=grid(location.hash.replace('#/',''))}});
-document.addEventListener('change',async ev=>{const t=ev.target;if(t.id==='chatFlowEdit'){try{const f=JSON.parse(t.value);if(!f||!f.start||!f.nodes||!f.nodes[f.start])throw new Error('Falta el nodo inicial o el mapa de nodos.');D.chatFlow=f;await sv();const st=q('#chatFlowStatus');if(st)st.textContent='✓ Ramificaciones guardadas: '+Object.keys(f.nodes).length+' nodos.'}catch(err){alert('No se guardaron las ramificaciones: '+err.message)}return}if(t.dataset.featured){const i=D.items.find(x=>x.id==t.dataset.featured);if(i){i.featured=t.checked;await sv();if(location.hash==='#/admin'&&tab==='home')render()}return}if(t.dataset.ri){const v=t.value.trim();if(t.dataset.rk=='c'&&v&&!D.cats.includes(v)){D.cats.push(v);sd()}if(t.dataset.rk=='s'||t.dataset.rk=='c')render();return}const f=t.files&&t.files[0];if(!f)return;
+document.addEventListener('change',async ev=>{const t=ev.target;
+if(t.dataset.mesonStock){
+ const item=D.items.find(x=>x.k==='mesones'&&String(x.id)===t.dataset.mesonStock);
+ if(!item)return;
+ const anterior=item.disponible;
+ item.disponible=t.checked;t.disabled=true;
+ if(!await sv()){item.disponible=anterior;t.checked=anterior!==false}
+ t.disabled=false;
+ return;
+}
+if(t.id==='chatFlowEdit'){try{const f=JSON.parse(t.value);if(!f||!f.start||!f.nodes||!f.nodes[f.start])throw new Error('Falta el nodo inicial o el mapa de nodos.');D.chatFlow=f;await sv();const st=q('#chatFlowStatus');if(st)st.textContent='✓ Ramificaciones guardadas: '+Object.keys(f.nodes).length+' nodos.'}catch(err){alert('No se guardaron las ramificaciones: '+err.message)}return}if(t.dataset.featured){const i=D.items.find(x=>x.id==t.dataset.featured);if(i){i.featured=t.checked;await sv();if(location.hash==='#/admin'&&tab==='home')render()}return}if(t.dataset.ri){const v=t.value.trim();if(t.dataset.rk=='c'&&v&&!D.cats.includes(v)){D.cats.push(v);sd()}if(t.dataset.rk=='s'||t.dataset.rk=='c')render();return}const f=t.files&&t.files[0];if(!f)return;
 if('homehero'in t.dataset){const image=await up(f);if(image){D.heroImage=image;await sv();render()}}else if('shopimage'in t.dataset){window.shopUploadedImage=await up(f);if(window.shopUploadedImage)alert('Imagen cargada. Ahora guarda el producto.')}else if('shophero'in t.dataset){const image=await up(f);if(image){D.shopHero=D.shopHero||{};D.shopHero.image=image;await sv();render()}}
 else if('qf'in t.dataset)await qadd([...t.files]);
 else if('rimg'in t.dataset){const u=await up(f),i=D.items.find(x=>x.id==t.dataset.rimg);if(u&&i){i.img=[u,...(i.img||[]).slice(1)];await sv();render()}}

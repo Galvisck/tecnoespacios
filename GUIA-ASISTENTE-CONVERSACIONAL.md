@@ -1,74 +1,34 @@
-# Asistente conversacional de TECNO ESPACIOS
+# Asistente de TECNO ESPACIOS
 
-El chat ahora utiliza un flujo ramificado en `public/chat-flujos.js` y el motor de conversación de `netlify/functions/chat.mjs`.
+El visitante puede empezar con una pregunta escrita o elegir Cotizar, Ver diseños,
+Seguimiento o Hablar con un asesor. Para las preguntas frecuentes, el asistente
+responde en el chat y enlaza a la sección correspondiente cuando aplica.
 
-## Qué incluye
-- Más de 120 nodos de conversación (preguntas y destinos).
-- Inicio por saludo y detección de intención.
-- Rutas para cocinas, closets, muebles de baño, otros muebles y proyectos completos.
-- En cada servicio: cotización, diseño, ideas e información.
-- Preguntas sobre estado del espacio, medidas, estilo, acabado, accesorios y ciudad.
-- Si no reconoce la respuesta, repite la pregunta con una aclaración.
-- La conversación termina solicitando datos para que el equipo comercial continúe.
-- El chat conserva el estado de la rama por sesión.
+Arrastra el botón del chat o el encabezado de la ventana para moverlos por
+separado. Las posiciones se guardan en el navegador. Con el teclado, enfoca
+el botón del chat o el control «Mover ventana del chat» y usa las flechas.
+La tecla Inicio restaura la posición predeterminada.
 
-## Cómo ampliar las ramificaciones desde el panel
-1. Entra al panel administrativo.
-2. Abre **Clientes → Chat en vivo → Respuestas**.
-3. Despliega **Editor avanzado de ramificaciones**.
-4. Edita el JSON y sal del campo para guardar. El panel valida que el JSON sea correcto y que exista el nodo inicial.
-5. Cada nodo usa esta estructura:
+Cerrar la ventana conserva la conversación. Después de 30 minutos sin mensajes,
+la conversación anterior pasa al historial y el visitante puede iniciar otra.
 
-```json
-{
-  "message": "¿Qué tipo de acabado prefieres?",
-  "options": [
-    {
-      "label": "Madera",
-      "keywords": ["madera", "roble", "nogal"],
-      "next": "acabado_madera"
-    },
-    {
-      "label": "Color claro",
-      "keywords": ["blanco", "beige", "claro"],
-      "next": "acabado_claro"
-    }
-  ],
-  "fallback": "Puedes elegir una opción o explicarme qué buscas."
-}
-```
+## Atención desde el panel
 
-Añade los nodos de destino dentro de `nodes`:
+En **Clientes → Chat en vivo → Activos**, las conversaciones que necesitan ayuda
+muestran «Solicita asesor» hasta que el equipo responde. El asistente deja de
+intervenir cuando deriva la conversación o escribe un miembro del equipo. El
+visitante puede continuar en el chat o enviar voluntariamente su WhatsApp para
+que lo contacten. Esos datos se registran mediante la integración existente con
+el CRM.
 
-```json
-"acabado_madera": {
-  "message": "¿Prefieres roble o nogal?",
-  "options": [
-    {"label": "Roble", "keywords": ["roble"], "next": "pregunta_medidas"},
-    {"label": "Nogal", "keywords": ["nogal"], "next": "pregunta_medidas"}
-  ],
-  "fallback": "Dime si prefieres roble o nogal."
-},
-"pregunta_medidas": {
-  "message": "¿Cuáles son las medidas aproximadas?",
-  "any": true,
-  "next": "salida"
-},
-"salida": {
-  "message": "Gracias. Nuestro equipo se pondrá en contacto contigo.",
-  "end": true
-}
-```
+## Respuestas configurables
 
-- `message`: texto que envía el asistente.
-- `options`: opciones que muestra numeradas y que el cliente puede elegir por número o por palabras clave.
-- `keywords`: sinónimos y formas habituales de responder.
-- `next`: identificador del siguiente nodo.
-- `fallback`: respuesta cuando no entiende lo que escribió el cliente.
-- `any: true`: acepta cualquier respuesta y continúa al siguiente nodo.
-- `end: true`: marca el cierre del flujo.
+En **Clientes → Chat en vivo → Respuestas**, las palabras clave guardadas en el
+panel tienen prioridad sobre las respuestas frecuentes del asistente. El editor
+avanzado permite configurar preguntas adicionales para las consultas que el
+asistente no resuelve directamente.
 
-**Importante:** cada `next` debe coincidir exactamente con el ID de un nodo existente. Conserva `start` y `nodes` en la estructura principal. Antes de publicar cambios grandes, guarda una copia del JSON actual.
-
-## Nota de integración
-El proyecto utiliza JavaScript en el navegador y funciones serverless de Netlify. No necesita instalar Python ni ejecutar un servidor Python para que el chat funcione.
+Cada ruta tiene un identificador inicial en `start` y un mapa `nodes`. Cada nodo
+puede incluir `message`, `options` (con `label`, `keywords` y `next`), `fallback`,
+`any` con `next` para continuar con texto libre, o `end` para cerrar la ruta.
+Los destinos deben apuntar a nodos existentes.

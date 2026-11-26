@@ -7,9 +7,10 @@ const CLI={nuevo:'Nuevo interesado',contactado:'Contactado',negociacion:'En nego
 const ORIG={pagina:'Página web',whatsapp:'WhatsApp',chat:'Chat',formulario:'Formulario',personalizador:'Personalizador',otro:'Otro'};
 const SOLE={nueva:'Nueva',revisada:'Revisada',cotizada:'Cotizada',proyecto:'Convertida en proyecto',descartada:'Descartada'};
 const CANAL={cotizacion:'Cotización',whatsapp:'WhatsApp',chat:'Chat',guardada:'Guardada'};
-const TIPOS=['Cocina integral','Closet','Mueble de baño','Centro de entretenimiento','Muebles personalizados'];
+const {tipos,partes:PARTES,nombres:DISENOS}=window.TE_MUEBLES;
+const nombresTipo=Object.fromEntries(tipos);
+const TIPOS=[...new Set([...tipos.map(([,n])=>n),'Closet','Centro de entretenimiento'])];
 const PROY=['Solicitud recibida','En revisión','Diseño y planificación','Cotización enviada','Cotización aprobada','En fabricación','En preparación para instalación','En instalación','Proyecto finalizado'];
-const PARTES=[['puertas','Puertas'],['estructura','Estructura'],['cajones','Cajones'],['laterales','Laterales'],['divisiones','Divisiones']];
 const NS={sol:null,cli:null,pro:null,st:null,bk:null,det:null,err:'',msg:'',pzV:'sol',solSel:'',solF:{estado:'',canal:''},cliV:'tablero',cliSel:'',cliForm:null,cliF:{q:'',estado:'',origen:'',tipo:'',desde:''},proSel:'',proForm:null,stR:'30',stD:'',stH:''};
 const LD={};
 const rerender=()=>{if(location.hash.startsWith('#/admin'))render()};
@@ -47,11 +48,11 @@ function pzView(){
   if(NS.solSel){const s=NS.sol.find(x=>x.id===NS.solSel);if(s)return head+solDetail(s)}
   const f=NS.solF,l=NS.sol.filter(s=>(!f.estado||s.estado===f.estado)&&(!f.canal||s.canal===f.canal));
   return head+tabs+msgBar()+`<div class="adm-filters">${sel('Estado','n-fs',[['','Todos'],...Object.entries(SOLE)],f.estado)}${sel('Canal','n-fc',[['','Todos'],...Object.entries(CANAL)],f.canal)}<button class="b o sm" data-n="solrefresh" type="button">Actualizar</button></div>
-  ${l.length?`<div class="adm-items">${l.map(s=>`<article class="adm-item adm-click" data-n="solopen" data-id="${s.id}"><div class="adm-item-body"><b>${esc(s.codigo)} · ${esc(s.contacto.nombre)}</b><small>${esc(({cocina:'Cocina integral',closet:'Closet',bano:'Mueble de baño',personalizado:'Muebles personalizados'})[s.tipo]||s.tipo)} · ${esc(s.contacto.telefono)} · ${fdt(s.creada)}</small></div><div class="adm-item-act">${pill(CANAL[s.canal]||s.canal)}${pill(SOLE[s.estado]||s.estado,s.estado==='nueva'?'activas':s.estado==='descartada'?'vencidas':'proximas')}</div></article>`).join('')}</div>`:'<p class="adm-empty">Todavía no hay solicitudes del personalizador.</p>'}`;
+  ${l.length?`<div class="adm-items">${l.map(s=>`<article class="adm-item adm-click" data-n="solopen" data-id="${s.id}"><div class="adm-item-body"><b>${esc(s.codigo)} · ${esc(s.contacto.nombre)}</b><small>${esc(nombresTipo[s.tipo]||s.tipo)} · ${esc(s.contacto.telefono)} · ${fdt(s.creada)}</small></div><div class="adm-item-act">${pill(CANAL[s.canal]||s.canal)}${pill(SOLE[s.estado]||s.estado,s.estado==='nueva'?'activas':s.estado==='descartada'?'vencidas':'proximas')}</div></article>`).join('')}</div>`:'<p class="adm-empty">Todavía no hay solicitudes del personalizador.</p>'}`;
 }
 function solDetail(s){
-  const tn=({cocina:'Cocina integral',closet:'Closet',bano:'Mueble de baño',entretenimiento:'Centro de entretenimiento',personalizado:'Muebles personalizados'})[s.tipo]||s.tipo,m=s.medidas||{};
-  const dn=({'cocina-lineal':'Cocina lineal','cocina-l':'Cocina en L','cocina-isla':'Cocina con isla','closet-corredizo':'Clóset corredizo','closet-abatible':'Clóset abatible','closet-vestier':'Vestier abierto','bano-flotante':'Mueble flotante','bano-doble':'Lavamanos doble','bano-torre':'Mueble con torre','tv-panel':'Panel para TV','tv-modular':'Centro modular','tv-flotante':'Mueble flotante','personalizado-base':'Diseño a medida','personalizado-almacenaje':'Mueble de almacenamiento','personalizado-decorativo':'Mueble decorativo'})[s.diseno]||s.diseno;
+  const tn=nombresTipo[s.tipo]||s.tipo,m=s.medidas||{};
+  const dn=DISENOS[s.diseno]||s.diseno;
   const filas=[['Mueble',tn+(s.descripcion?' — '+s.descripcion:'')],['Diseño',dn],['Estilo',s.estilo],['Material',s.material],['Puertas',s.puertas],['Cajones',s.cajones],['Tiradores',s.tiradores],['Herrajes',s.herrajes],['Medidas',(m.ancho||m.alto||m.prof)?`${m.ancho||'—'} × ${m.alto||'—'} × ${m.prof||'—'} cm`:''],['Observaciones',s.obs]].filter(x=>x[1]);
   const cols=PARTES.filter(([p])=>s.colores&&s.colores[p]);
   const c=(NS.cli||[]).find(x=>x.id===s.clienteId);
@@ -71,8 +72,8 @@ function pzCfg(){
   const c=pz();D.pz=Object.assign({},PZ.DEF,D.pz||{});D.pz.tarifas=D.pz.tarifas||{};
   const ta=(l,k)=>`<label>${l}<textarea rows="5" data-p="pz.${k}">${esc(D.pz[k])}</textarea></label>`;
   return `<div class="adm-cols"><div class="fm"><h3>Opciones del personalizador</h3>${ta('Estilos','estilos')}${ta('Materiales','materiales')}${ta('Tipos de puertas','puertas')}${ta('Cajones','cajones')}${ta('Tiradores','tiradores')}${ta('Herrajes','herrajes')}<small>Una opción por línea. Para sumar un valor: «Nombre | 50000».</small></div>
-  <div class="fm"><h3>Tarifas por m²</h3>${[['cocina','Cocina integral'],['closet','Closet'],['bano','Mueble de baño'],['personalizado','Muebles personalizados']].map(([k,n])=>`<label>${n} (COP por m² de frente)<input type="number" min="0" data-p="pz.tarifas.${k}" value="${esc(D.pz.tarifas[k]||'')}" placeholder="Sin tarifa → sujeto a cotización"></label>`).join('')}<h3>CRM</h3><label>Días sin seguimiento para alertar<input type="number" min="1" max="60" data-p="pz.diasAlerta" value="${esc(D.pz.diasAlerta)}"></label>
-  <p class="adm-hint">Los colores y mesones salen del catálogo (Catálogo → Colores y Mesones).</p></div></div>`;
+  <div class="fm"><h3>Tarifas por m²</h3>${tipos.map(([k,n])=>`<label>${n} (COP por m² de frente)<input type="number" min="0" data-p="pz.tarifas.${k}" value="${esc(D.pz.tarifas[k]||'')}" placeholder="Sin tarifa → sujeto a cotización"></label>`).join('')}<h3>CRM</h3><label>Días sin seguimiento para alertar<input type="number" min="1" max="60" data-p="pz.diasAlerta" value="${esc(D.pz.diasAlerta)}"></label>
+  <p class="adm-hint">Los colores salen del catálogo. En Catálogo → Mesones puedes activar o desactivar cada acabado para el personalizador.</p></div></div>`;
 }
 
 /* =============== SEGUIMIENTO DE PROYECTOS =============== */
@@ -257,7 +258,7 @@ document.addEventListener('click',async e=>{
   else if(a==='solsave'){const r=await NA('s-upd',{id,estado:val('n-se'),nota:(q('#n-sn')||{}).value||''});await done(r,'Solicitud actualizada.',['sol'])}
   else if(a==='solassign'){const r=await NA('s-upd',{id,clienteId:val('n-sc')});await done(r,'Solicitud relacionada con el cliente.',['sol','cli'])}
   else if(a==='soldel'){if(confirm('¿Eliminar esta solicitud? No se puede deshacer.')){const r=await NA('s-del',{id});if(r.ok)NS.solSel='';await done(r,'Solicitud eliminada.',['sol','cli'])}}
-  else if(a==='solproy'){const s=NS.sol.find(x=>x.id===id);NS.proForm={id:'',nombre:(({cocina:'Cocina',closet:'Closet',bano:'Mueble de baño',personalizado:'Mueble'})[s.tipo]||'Proyecto')+' · '+s.contacto.nombre,tipo:({cocina:'Cocina integral',closet:'Closet',bano:'Mueble de baño',personalizado:'Muebles personalizados'})[s.tipo]||'',clienteId:s.clienteId,solicitudId:s.id,estado:0,inicio:hoy(),entrega:'',novedad:'',notaInterna:''};NS.proSel='form';reset(['pro']);tab='proyadmin';rerender()}
+  else if(a==='solproy'){const s=NS.sol.find(x=>x.id===id);NS.proForm={id:'',nombre:(({cocina:'Cocina',closet:'Closet',bano:'Mueble de baño',personalizado:'Mueble'})[s.tipo]||'Proyecto')+' · '+s.contacto.nombre,tipo:nombresTipo[s.tipo]||'',clienteId:s.clienteId,solicitudId:s.id,estado:0,inicio:hoy(),entrega:'',novedad:'',notaInterna:''};NS.proSel='form';reset(['pro']);tab='proyadmin';rerender()}
   else if(a==='gocli'){NS.cliSel=id;NS.det=null;NS.cliV='tablero';reset(['cli']);tab='crmadmin';rerender()}
   else if(a==='gosol'){NS.solSel=id;NS.pzV='sol';reset(['sol']);tab='pzadmin';rerender()}
   else if(a==='goproy'){NS.proSel=id;reset(['pro','cli']);tab='proyadmin';rerender()}

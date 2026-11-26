@@ -1,6 +1,8 @@
 // Endpoints públicos: solicitudes del personalizador, seguimiento de proyectos y medición anónima
 import {J,store,str,txt,tel,digits,MAIL,num,codigo,hoy,entorno,rd,wr,ipHash,limite,upsertCliente,copiaDiaria,estimar,opciones,ESTADOS_PROY,TIPOS,PARTES} from './lib/negocio.mjs';
 
+import paletaReferencia from '../../public/paleta-referencia.js';
+
 const PAGINAS=['inicio','proyectos','mesones','colores','promos','resenas','contacto','shop','personalizador','seguimiento'];
 const CANALES=['cotizacion','whatsapp','chat','guardada'];
 
@@ -39,22 +41,24 @@ async function solicitud(st,req,b){
   if(ct.nombre.length<2)return J({e:'Escribe tu nombre completo.'},400);
   if(digits(ct.telefono).length<7)return J({e:'Escribe un teléfono válido (mínimo 7 dígitos).'},400);
   if(ct.correo&&!MAIL.test(ct.correo))return J({e:'El correo no es válido.'},400);
-  if(!TIPOS[s.tipo])return J({e:'Elige el tipo de mueble.'},400);
+  if(!Object.hasOwn(TIPOS,s.tipo))return J({e:'Elige el tipo de mueble.'},400);
   const canal=CANALES.includes(b.canal)?b.canal:'cotizacion';
   const datos=await rd(st,'datos',{}),pz=datos.pz||{},items=Array.isArray(datos.items)?datos.items:[];
-  // Colores y mesón: SOLO del catálogo vigente; se guardan nombre, categoría, referencia e imagen reales
-  const colores={};
+  // Usa las muestras de referencia únicamente mientras el catálogo de colores esté vacío.
+  const colores={}, publicados=items.filter(x=>x.k==='colores');
+  const paleta=publicados.length?publicados:paletaReferencia;
   for(const p of PARTES){
+    if(p==='superiores'&&!['cocina','lavadero'].includes(s.tipo))continue;
     const id=s.colores&&s.colores[p];if(id==null||id==='')continue;
-    const it=items.find(x=>x.k==='colores'&&String(x.id)===String(id));
+    const it=paleta.find(x=>String(x.id)===String(id));
     if(!it)return J({e:'Uno de los colores elegidos ya no está disponible. Revisa tu selección.',color:String(id)},409);
-    colores[p]={id:it.id,nombre:str(it.n,120),categoria:str(it.s,80),ref:str(it.ref,60),img:str((it.img&&it.img[0])||'',300),hex:str(it.x,12)};
+    colores[p]={id:it.id,nombre:str(it.n,120),categoria:str(it.s,80),ref:str(it.ref,60),img:str((it.img&&it.img[0])||'',300),hex:str(it.x,12),...(it.referencia===true?{referencia:true}:{})};
   }
   let meson=null;
-  if(s.meson!=null&&s.meson!==''){
-    const it=items.find(x=>x.k==='mesones'&&String(x.id)===String(s.meson));
+  if(s.meson!=null&&s.meson!==''&&['cocina','bano','lavadero','personalizado'].includes(s.tipo)){
+    const it=items.find(x=>x.k==='mesones'&&x.disponible!==false&&String(x.id)===String(s.meson));
     if(!it)return J({e:'El mesón elegido ya no está disponible. Revisa tu selección.'},409);
-    meson={id:it.id,nombre:str(it.n,120),categoria:str(it.s,80),ref:str(it.ref,60),img:str((it.img&&it.img[0])||'',300)};
+    meson={id:it.id,nombre:str(it.n,120),categoria:str(it.s,80),ref:str(it.ref,60),img:str((it.img&&it.img[0])||'',300),hex:str(it.x,12)};
   }
   const lista=(k,v)=>{v=str(v,100);if(!v)return '';const o=opciones(pz[k]);return !o.length||o.some(x=>x.n===v)?v:null};
   const sel={tipo:s.tipo,diseno:str(s.diseno,80),estilo:lista('estilos',s.estilo),material:lista('materiales',s.material),puertas:lista('puertas',s.puertas),cajones:lista('cajones',s.cajones),tiradores:lista('tiradores',s.tiradores),herrajes:lista('herrajes',s.herrajes)};

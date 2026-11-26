@@ -1,11 +1,24 @@
 # Guía de las nuevas funciones comerciales
 
+## Panel de administración
+
+El panel abre en **Resumen**, con accesos a las tareas frecuentes. El menú
+agrupa las secciones por trabajo y permite buscarlas por nombre. Pulsa
+**Organizar menú** y usa las flechas para ordenar los grupos. La preferencia
+queda guardada en ese navegador.
+
 ## 1. Personalizador de muebles (público: menú «Personalizador»)
-El cliente avanza por pasos: **Tipo → Estilo → Colores → Materiales → Medidas → Resumen**. A la derecha ve una vista previa que cambia con cada elección.
-- **Colores:** salen directamente de **Catálogo → Colores** (no hay una lista aparte). Si agregas, editas o eliminas un color, el personalizador se actualiza solo (como máximo en 30 s) y quita de la selección del cliente los colores que ya no existen.
+El cliente avanza por pasos: **Tipo → Diseño → Estilo → Colores → Materiales → Medidas → Resumen**. Puede elegir
+tres distribuciones por tipo de mueble. La vista previa muestra la distribución
+seleccionada y responde en el momento a los cambios de acabado.
+- **Colores:** se toman de **Catálogo → Colores**. Si ese catálogo está
+  vacío, el cliente puede probar la paleta marcada como referencia.
+- **Mesones:** en **Catálogo → Mesones**, marca **Disponible** para incluir
+  un acabado en el selector de mesón. Los acabados disponibles se combinan
+  con los colores en el mismo paso del personalizador.
 - Cada color se muestra con su foto, nombre, referencia y categoría. Se usa **solo un recorte central de 220×220 px** de la foto (para evitar las letras de los bordes), tanto en la tarjeta como en la vista previa y la ampliación (🔍).
-- El cliente puede asignar un color distinto a **puertas, estructura, cajones, laterales y divisiones**, o «todas las partes» a la vez.
-- Al enviar se guardan, por cada color: nombre, categoría, **código del catálogo, referencia** e imagen. El servidor los toma del catálogo vigente (no confía en lo que envía el navegador) y rechaza colores que ya no existen.
+- El cliente puede asignar un color distinto a **puertas, estructura, cajones, laterales y divisiones**, o «todas las partes» a la vez. Las cocinas y los lavaderos permiten elegir por separado el acabado de las puertas superiores.
+- Al enviar se guardan, por cada color: nombre, categoría, **código del catálogo, referencia** e imagen. El servidor valida el catálogo vigente y guarda como referencias los colores de muestra cuando corresponde.
 - **Referencia:** en Catálogo → Colores (y Mesones) → **Editar** hay un campo nuevo «Código / referencia». Si lo dejas vacío, solo se muestran nombre y categoría (no se inventa nada).
 - Salidas: **Solicitar cotización**, **Enviar por WhatsApp** (abre WhatsApp con el resumen), **Enviar al chat** (el resumen llega al chat en vivo) y **Guardar como solicitud**. Las cuatro registran la solicitud y reciben un código `SOL-XXXXXX`.
 - **Precios:** nunca se inventan. Muestra «Valor sujeto a cotización» salvo que configures tarifas (ver abajo).

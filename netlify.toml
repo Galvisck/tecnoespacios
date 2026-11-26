@@ -5,6 +5,9 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions.documentos]
+  included_files = ["public/img/logo.png", "public/img/tarjeta-frente.jpg", "public/img/tarjeta-dorso.jpg"]
+
 [[headers]]
   for = "/*"
   [headers.values]
