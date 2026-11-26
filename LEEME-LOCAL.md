@@ -34,4 +34,9 @@ El formulario guarda cada mensaje (panel > Mensajes de contacto) y avisa por cor
 - Variables de entorno en Netlify: `RESEND_API_KEY` (obligatoria), `CONTACTO_FROM` (remitente verificado; si falta usa el de pruebas de Resend).
 - Destinatario: panel > Empresa > «Correo que recibe los mensajes del formulario» (si está vacío usa el correo público).
 - En pruebas locales define `CONTACTO_TEST_TO=tu_correo_de_prueba` para que ningún aviso llegue a clientes ni a la empresa.
-- Sin la llave, la página lo dice con claridad: «quedó registrado, pero el aviso por correo no pudo enviarse».
+- Sin la llave el mensaje igual queda registrado en el panel y en el CRM; solo no se envía el aviso por correo.
+
+## Nuevas herramientas comerciales (v4)
+Detalle de uso en `GUIA-NUEVAS-FUNCIONES.md`. En local funcionan igual: personalizador, seguimiento, CRM y estadísticas.
+Las estadísticas locales se marcan como «Entorno de pruebas»; solo se consideran datos reales los del dominio publicado
+(`tecnoespacios.homes`; si usas otro dominio, define la variable de entorno `ENTORNO=produccion` en Netlify).

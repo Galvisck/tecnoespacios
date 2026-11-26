@@ -1,4 +1,5 @@
 import {getStore} from '@netlify/blobs';
+import {upsertCliente,atenderPorSesion,digits,str} from './lib/negocio.mjs';
 const J=(o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{'content-type':'application/json','cache-control':'no-store'}});
 const clean=(v,n=1200)=>String(v??'').replace(/[<>]/g,'').trim().slice(0,n);
 const TTL=30*60*1000, MAX=2000;
@@ -25,8 +26,12 @@ export default async req=>{
  if(b.action==='send'){
   const name=clean(b.name,80), message=clean(b.message,1000), session=clean(b.session,80);
   if(name.length<2||message.length<1||!session)return J({e:'Completa tu nombre y mensaje.'},400);
+  const primero=!all.some(x=>x.session===session&&x.from==='visitor');
   const item={id:crypto.randomUUID(),session,name,message,from:'visitor',at:new Date().toISOString(),read:false};
   all.push(item);
+  // Si el visitante dejó su teléfono, queda registrado en el CRM (sin duplicados)
+  const phone=str(b.phone,30);
+  if(digits(phone).length>=7){try{await upsertCliente(st,{nombre:name,telefono:phone,origen:'chat',sesion:session,evento:primero?'Chat en vivo: primer mensaje':''})}catch{}}
   const rules=Array.isArray(b.rules)?b.rules.slice(0,50):[];
   const normalized=message.toLocaleLowerCase('es');
   const match=rules.find(r=>{const keyword=clean(r?.keyword,100).toLocaleLowerCase('es');return keyword&&clean(r?.response,1000)&&normalized.includes(keyword)});
@@ -39,7 +44,7 @@ export default async req=>{
  if(b.action==='reply'){
   const session=clean(b.session,80),message=clean(b.message,1000); if(!session||!message)return J({e:'Respuesta vacía'},400);
   all.push({id:crypto.randomUUID(),session,name:'TECNO ESPACIOS',message,from:'admin',at:new Date().toISOString(),read:true});
-  await st.setJSON('chat-mensajes',all.slice(-MAX)); return J({ok:true});
+  await st.setJSON('chat-mensajes',all.slice(-MAX)); await atenderPorSesion(st,session); return J({ok:true});
  }
  if(b.action==='delete'){
   const session=clean(b.session,80); if(!session)return J({e:'Conversación no indicada'},400);

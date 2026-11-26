@@ -1,4 +1,5 @@
 import {getStore} from '@netlify/blobs';
+import {upsertCliente,copiaDiaria} from './lib/negocio.mjs';
 const DEF='102eadf5a95f7d262edefb1f2888cb8ded09635c5d71fa6c21d2def3902c299e';
 const J=(o,s=200)=>new Response(JSON.stringify(o),{status:s,headers:{'content-type':'application/json','cache-control':'no-store'}});
 const clean=(v,n)=>String(v??'').replace(/[<>]/g,'').trim().slice(0,n);
@@ -37,5 +38,7 @@ export default async req=>{
     }catch{item.emailed=false}
   }
   all.push(item);await st.setJSON('contacto-mensajes',all.slice(-500));
+  // Registro automático en el CRM (sin duplicar: mismo teléfono o correo)
+  try{await upsertCliente(st,{nombre:m.nombre,telefono:m.telefono,correo:m.correo,tipo:m.asunto,origen:'formulario',mensaje:item.id,evento:'Formulario de contacto: '+m.asunto});await copiaDiaria(st)}catch{}
   return J({ok:true,emailed:item.emailed});
 };
